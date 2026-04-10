@@ -2,13 +2,7 @@ module "runs_on" {
   source  = "runs-on/runs-on/aws"
   version = "~> 2.12"
 
-  # Required.
-  # license_key is sourced from RUNSON_LICENSE_KEY at runtime:
-  #   - Local: `doppler run` injects it from iac-conf-mgmt/prd
-  #   - CI:    dopplerhq/secrets-fetch-action injects it in ci-gate.yml
-  #            and deploy.yml using the GH_ACTION_DOPPLER_IAC_CONF_MGMT token
-  # terragrunt.hcl reads it via get_env("RUNSON_LICENSE_KEY", "") and maps
-  # it to this variable.
+  # Required. license_key is injected at runtime via RUNSON_LICENSE_KEY (see CLAUDE.md).
   github_organization = var.github_organization
   license_key         = var.license_key
   email               = var.email
