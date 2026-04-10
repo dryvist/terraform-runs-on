@@ -79,10 +79,13 @@ direnv allow    # one-time per worktree, then automatic
 
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
-| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | `license_key` via terragrunt `inputs` block |
-| `RUNSON_LICENSE` | GitHub repo secret | CI workflows (`TF_VAR_license_key`) |
-| `AWS_OIDC_ROLE_ARN` | Terraform output | CI OIDC auth |
-| AWS credentials | aws-vault profile `tf-runs-on` | S3 backend auth |
+| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` |
+| `RUNSON_LICENSE` | Doppler → GitHub secrets-sync | `ci-gate.yml` plan + `deploy.yml` apply (`TF_VAR_license_key`) |
+| `AWS_OIDC_ROLE_ARN` | GitHub repo secret | `ci-gate.yml` plan + `deploy.yml` apply OIDC auth |
+| AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
+
+Consumer repos using the deployed runner only need the RunsOn GitHub App
+installed — they never need `RUNSON_LICENSE`.
 
 ## Cost Target
 
