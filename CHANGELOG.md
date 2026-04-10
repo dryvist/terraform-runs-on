@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.4](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.3...v0.2.4) (2026-04-10)
+
+
+### Bug Fixes
+
+* **ci:** fetch RUNSON_LICENSE_KEY from Doppler at runtime ([#18](https://github.com/JacobPEvans/terraform-runs-on/issues/18)) ([aaea1ac](https://github.com/JacobPEvans/terraform-runs-on/commit/aaea1ac94e5941beeb1e762c1582e582eeded856))
+
 ## [0.2.3](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.2...v0.2.3) (2026-04-10)
 
 
