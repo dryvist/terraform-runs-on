@@ -48,11 +48,16 @@ After deployment, use RunsOn runners in any workflow:
 ```yaml
 jobs:
   build:
-    runs-on: runs-on,runner=2cpu-linux-x64,family=c7+m7
+    runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64/family=c7+m7"
     steps:
       - uses: actions/checkout@v4
       - run: echo "Running on RunsOn!"
 ```
+
+The `${{ github.run_id }}` segment is required so RunsOn can correlate the
+`workflow_job` event back to the originating run. See the [RunsOn job labels
+documentation](https://runs-on.com/configuration/job-labels/) for runner sizes
+and other options.
 
 ## Installation
 
