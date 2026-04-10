@@ -79,10 +79,32 @@ direnv allow    # one-time per worktree, then automatic
 
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
-| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | `license_key` via terragrunt `inputs` block |
-| `RUNSON_LICENSE` | GitHub repo secret | CI workflows (`TF_VAR_license_key`) |
-| `AWS_OIDC_ROLE_ARN` | Terraform output | CI OIDC auth |
-| AWS credentials | aws-vault profile `tf-runs-on` | S3 backend auth |
+| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` (mapped to `license_key` in `terragrunt.hcl`) |
+| `RUNSON_LICENSE` | Doppler → GitHub via secrets-sync (#13) | `deploy.yml` workflow (`TF_VAR_license_key`) |
+| `AWS_OIDC_ROLE_ARN` | GitHub repo secret (set from terraform output post-bootstrap) | `deploy.yml` OIDC auth |
+| AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
+
+`RUNSON_LICENSE_KEY` (Doppler) and `RUNSON_LICENSE` (GitHub) hold the same value
+under different names — the Doppler GitHub Actions integration syncs
+`RUNSON_LICENSE_KEY` from the `iac-conf-mgmt/prd` config into this repo's secrets
+as `RUNSON_LICENSE`. Rotate by updating Doppler; the sync pushes to GitHub
+automatically.
+
+### Consumer repos do NOT need a license secret
+
+Repos that consume the deployed RunsOn runner (e.g., `nix-home`) only need the
+**RunsOn GitHub App** installed (currently scoped "All repositories" on
+`JacobPEvans`). They never need `RUNSON_LICENSE` because the license is held
+by the App Runner control plane, not the consuming repo. To opt a repo into
+the runner, set the workflow `runs-on:` label to a RunsOn v2 label like:
+
+```yaml
+runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64"
+```
+
+For reusable workflows, parameterize via a `runner_label` input and gate fork
+PRs back to `ubuntu-latest`. See `JacobPEvans/.github/.github/workflows/_nix-validate.yml`
+and `JacobPEvans/nix-home/.github/workflows/ci-gate.yml` for the canonical pattern.
 
 ## Cost Target
 
