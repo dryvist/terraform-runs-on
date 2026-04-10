@@ -34,14 +34,16 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
           aws-region: us-east-2
-      - name: Fetch secrets from Doppler
+      - name: Fetch RunsOn license from Doppler
+        id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
         with:
           doppler-token: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
           doppler-project: iac-conf-mgmt
           doppler-config: prd
-          inject-env-vars: true
       - name: Terragrunt Init
         run: terragrunt init
       - name: Terragrunt Apply
+        env:
+          RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
         run: terragrunt apply -auto-approve -no-color
