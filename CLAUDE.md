@@ -79,13 +79,13 @@ direnv allow    # one-time per worktree, then automatic
 
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
-| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` |
-| `RUNSON_LICENSE` | Doppler → GitHub secrets-sync | `ci-gate.yml` plan + `deploy.yml` apply (`TF_VAR_license_key`) |
+| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run`; CI via `dopplerhq/secrets-fetch-action` (injected as env var, read by `terragrunt.hcl`) |
+| `GH_ACTION_DOPPLER_IAC_CONF_MGMT` | GitHub repo secret (secrets-sync Tier 2) | `ci-gate.yml` + `deploy.yml` Doppler fetch step |
 | `AWS_OIDC_ROLE_ARN` | GitHub repo secret | `ci-gate.yml` plan + `deploy.yml` apply OIDC auth |
 | AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
 
 Consumer repos using the deployed runner only need the RunsOn GitHub App
-installed — they never need `RUNSON_LICENSE`.
+installed — they never need a license secret.
 
 ## Cost Target
 
