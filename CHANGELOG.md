@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.2...v0.2.3) (2026-04-10)
+
+
+### Bug Fixes
+
+* correct RunsOn job label syntax to v2 format ([#15](https://github.com/JacobPEvans/terraform-runs-on/issues/15)) ([134e8ea](https://github.com/JacobPEvans/terraform-runs-on/commit/134e8ea985f757e113450294e47223828fffc716))
+
 ## [0.2.2](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.1...v0.2.2) (2026-03-26)
 
 
