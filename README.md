@@ -48,7 +48,7 @@ After deployment, use RunsOn runners in any workflow:
 ```yaml
 jobs:
   build:
-    runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64"
+    runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64/family=c7+m7"
     steps:
       - uses: actions/checkout@v4
       - run: echo "Running on RunsOn!"
