@@ -79,34 +79,13 @@ direnv allow    # one-time per worktree, then automatic
 
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
-| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` (mapped to `license_key` in `terragrunt.hcl`) |
-| `RUNSON_LICENSE` | Doppler → GitHub via secrets-sync (#13) | `ci-gate.yml` plan job + `deploy.yml` apply job (`TF_VAR_license_key`) |
-| `AWS_OIDC_ROLE_ARN` | GitHub repo secret (set from terraform output post-bootstrap) | `ci-gate.yml` plan job + `deploy.yml` apply job OIDC auth |
+| `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` |
+| `RUNSON_LICENSE` | Doppler → GitHub secrets-sync | `ci-gate.yml` plan + `deploy.yml` apply (`TF_VAR_license_key`) |
+| `AWS_OIDC_ROLE_ARN` | GitHub repo secret | `ci-gate.yml` plan + `deploy.yml` apply OIDC auth |
 | AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
 
-`RUNSON_LICENSE_KEY` (Doppler) and `RUNSON_LICENSE` (GitHub) hold the same value
-under different names — Doppler's **GitHub secrets-sync integration** pushes
-`RUNSON_LICENSE_KEY` from the `iac-conf-mgmt/prd` config into this repo's
-GitHub Actions secrets as `RUNSON_LICENSE` (issue #13). This is distinct from
-the Doppler GitHub Actions runtime integration, which would inject secrets at
-workflow runtime via the `doppler-action`. Rotate by updating Doppler; the
-sync pushes the new value to GitHub automatically.
-
-### Consumer repos do NOT need a license secret
-
-Repos that consume the deployed RunsOn runner (e.g., `nix-home`) only need the
-**RunsOn GitHub App** installed (currently scoped "All repositories" on
-`JacobPEvans`). They never need `RUNSON_LICENSE` because the license is held
-by the App Runner control plane, not the consuming repo. To opt a repo into
-the runner, set the workflow `runs-on:` label to a RunsOn v2 label like:
-
-```yaml
-runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64"
-```
-
-For reusable workflows, parameterize via a `runner_label` input and gate fork
-PRs back to `ubuntu-latest`. See `JacobPEvans/.github/.github/workflows/_nix-validate.yml`
-and `JacobPEvans/nix-home/.github/workflows/ci-gate.yml` for the canonical pattern.
+Consumer repos using the deployed runner only need the RunsOn GitHub App
+installed — they never need `RUNSON_LICENSE`.
 
 ## Cost Target
 
