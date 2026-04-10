@@ -80,15 +80,17 @@ direnv allow    # one-time per worktree, then automatic
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
 | `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local terragrunt via `doppler run` (mapped to `license_key` in `terragrunt.hcl`) |
-| `RUNSON_LICENSE` | Doppler → GitHub via secrets-sync (#13) | `deploy.yml` workflow (`TF_VAR_license_key`) |
-| `AWS_OIDC_ROLE_ARN` | GitHub repo secret (set from terraform output post-bootstrap) | `deploy.yml` OIDC auth |
+| `RUNSON_LICENSE` | Doppler → GitHub via secrets-sync (#13) | `ci-gate.yml` plan job + `deploy.yml` apply job (`TF_VAR_license_key`) |
+| `AWS_OIDC_ROLE_ARN` | GitHub repo secret (set from terraform output post-bootstrap) | `ci-gate.yml` plan job + `deploy.yml` apply job OIDC auth |
 | AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
 
 `RUNSON_LICENSE_KEY` (Doppler) and `RUNSON_LICENSE` (GitHub) hold the same value
-under different names — the Doppler GitHub Actions integration syncs
-`RUNSON_LICENSE_KEY` from the `iac-conf-mgmt/prd` config into this repo's secrets
-as `RUNSON_LICENSE`. Rotate by updating Doppler; the sync pushes to GitHub
-automatically.
+under different names — Doppler's **GitHub secrets-sync integration** pushes
+`RUNSON_LICENSE_KEY` from the `iac-conf-mgmt/prd` config into this repo's
+GitHub Actions secrets as `RUNSON_LICENSE` (issue #13). This is distinct from
+the Doppler GitHub Actions runtime integration, which would inject secrets at
+workflow runtime via the `doppler-action`. Rotate by updating Doppler; the
+sync pushes the new value to GitHub automatically.
 
 ### Consumer repos do NOT need a license secret
 
