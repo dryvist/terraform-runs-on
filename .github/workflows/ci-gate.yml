@@ -125,11 +125,11 @@ jobs:
           TFCMT_MASKS: "regexp:\\b[0-9]{12}\\b|regexp:arn:aws:[^ \"]+|regexp:\\b[a-f0-9]{64}\\b|regexp:vpc-[a-f0-9]{8,17}|regexp:sg-[a-f0-9]{8,17}"
         # tfcmt runs `terragrunt plan`, captures its output, applies the
         # masks, and posts the (masked) result as a PR comment via the
-        # GitHub API. --patch updates the previous plan comment on this
-        # PR instead of stacking new ones on every push. Exit code from
-        # `terragrunt plan` propagates through tfcmt, so plan failures
-        # still fail the job.
-        run: tfcmt --patch plan -- terragrunt plan -no-color
+        # GitHub API. `-patch` (plan-subcommand flag) updates the previous
+        # plan comment on this PR instead of stacking new ones on every
+        # push. Exit code from `terragrunt plan` propagates through tfcmt,
+        # so plan failures still fail the job.
+        run: tfcmt plan -patch -- terragrunt plan -no-color
 
   gate:
     name: Merge Gate
