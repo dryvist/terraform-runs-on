@@ -29,11 +29,7 @@ jobs:
       - name: Install Terragrunt
         env:
           TG_VERSION: v1.0.0
-        run: |
-          curl -sSfLo /usr/local/bin/terragrunt \
-            "https://github.com/gruntwork-io/terragrunt/releases/download/${TG_VERSION}/terragrunt_linux_amd64"
-          chmod +x /usr/local/bin/terragrunt
-          terragrunt --version
+        run: .github/scripts/install-terragrunt.sh
       - name: Fetch secrets from Doppler
         id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
