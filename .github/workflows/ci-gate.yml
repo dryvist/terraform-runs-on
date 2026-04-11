@@ -18,8 +18,8 @@ jobs:
     outputs:
       terraform: ${{ steps.filter.outputs.terraform }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
+      - uses: actions/checkout@v6
+      - uses: dorny/paths-filter@v4
         id: filter
         with:
           filters: |
@@ -36,8 +36,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
       - name: Terraform Format
         run: terraform fmt -check
       - name: Terraform Init
@@ -65,14 +65,19 @@ jobs:
             echo "::warning::GH_ACTION_DOPPLER_IAC_CONF_MGMT secret not configured — skipping plan (expected during initial bootstrap)"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         if: steps.check.outputs.skip != 'true'
-      - uses: hashicorp/setup-terraform@v3
+      - uses: hashicorp/setup-terraform@v4
         if: steps.check.outputs.skip != 'true'
-      - uses: autero1/action-terragrunt@v3
+      - name: Install Terragrunt
         if: steps.check.outputs.skip != 'true'
-        with:
-          terragrunt-version: latest
+        env:
+          TG_VERSION: v1.0.0
+        run: |
+          curl -sSfLo /usr/local/bin/terragrunt \
+            "https://github.com/gruntwork-io/terragrunt/releases/download/${TG_VERSION}/terragrunt_linux_amd64"
+          chmod +x /usr/local/bin/terragrunt
+          terragrunt --version
       - name: Fetch secrets from Doppler
         if: steps.check.outputs.skip != 'true'
         id: doppler
@@ -83,7 +88,7 @@ jobs:
           doppler-config: prd
       - name: Configure AWS Credentials
         if: steps.check.outputs.skip != 'true'
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
@@ -98,7 +103,7 @@ jobs:
         run: terragrunt plan -no-color -out=tfplan 2>&1 | tee plan_output.txt
       - name: Post Plan to PR
         if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');
