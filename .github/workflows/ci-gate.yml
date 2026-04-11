@@ -97,14 +97,21 @@ jobs:
       - name: Terragrunt Plan
         if: steps.check.outputs.skip != 'true'
         id: plan
+        continue-on-error: true
         env:
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
-        run: terragrunt plan -no-color -out=tfplan 2>&1 | tee plan_output.txt
-      - name: Scrub plan output before posting
-        if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
+        # Redirect to file only — never to stdout — so sensitive structural
+        # identifiers (VPC, SG, Secrets Manager hashes) that mask-aws-account-id
+        # does not cover never hit the workflow log. The scrubbed version is
+        # printed by the next step.
+        run: terragrunt plan -no-color -out=tfplan > plan_output.txt 2>&1
+      - name: Scrub and display plan output
+        if: steps.check.outputs.skip != 'true'
         env:
           AWS_ACCOUNT_ID: ${{ steps.creds.outputs.aws-account-id }}
-        run: .github/scripts/scrub-plan-output.sh plan_output.txt
+        run: |
+          .github/scripts/scrub-plan-output.sh plan_output.txt
+          cat plan_output.txt
       - name: Post Plan to PR
         if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v9
@@ -126,6 +133,9 @@ jobs:
               repo: context.repo.repo,
               body: output
             });
+      - name: Fail if plan failed
+        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'failure'
+        run: exit 1
 
   gate:
     name: Merge Gate

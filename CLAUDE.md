@@ -97,43 +97,49 @@ Budget alarm alerts at 50%, 80%, 100% of $10/month.
 When flipping this repo from private to public, follow every step. Skipping
 any of these will leak AWS account IDs, resource ARNs, or structural hints.
 
-1. **Run a sensitive-data sweep on every open PR comment.** Any `#### Terraform
-   Plan` comment posted by `github-actions[bot]` contains the raw plan output
-   with account IDs and ARNs. Delete them before flipping public:
+1. **Run a sensitive-data sweep on every PR comment (all states, full
+   history).** Any `#### Terraform Plan` comment posted by
+   `github-actions[bot]` contains the raw plan output with account IDs and
+   ARNs. Delete them before flipping public. Uses REST `--paginate` so every
+   PR and every comment is covered regardless of repo volume. The same
+   `env -u GITHUB_TOKEN` is used for the listing and the delete so the
+   same token (with `issues:write`) handles both calls:
 
    ```bash
    REPO=JacobPEvans/terraform-runs-on
-   for PR in $(gh pr list --repo "$REPO" --state all --limit 50 \
-                 --json number --jq '.[].number'); do
-     gh api graphql -f query="query { repository(owner:\"JacobPEvans\",
-         name:\"terraform-runs-on\") { pullRequest(number:${PR}) {
-         comments(first:50) { nodes { databaseId body } } } } }" \
-       --jq '.data.repository.pullRequest.comments.nodes[]
-             | select(.body | startswith("#### Terraform Plan"))
-             | .databaseId' \
+   env -u GITHUB_TOKEN gh api --paginate \
+     "repos/${REPO}/pulls?state=all&per_page=100" \
+     --jq '.[].number' \
+   | while read PR; do
+       env -u GITHUB_TOKEN gh api --paginate \
+         "repos/${REPO}/issues/${PR}/comments?per_page=100" \
+         --jq '.[] | select(.body | startswith("#### Terraform Plan"))
+                   | .id' \
        | while read CID; do
            env -u GITHUB_TOKEN gh api -X DELETE \
              "repos/${REPO}/issues/comments/${CID}"
          done
-   done
+     done
    ```
 
-2. **Delete workflow run logs for any run in the last 90 days that ran
-   `Terragrunt Plan` or `Terragrunt Apply` before the log-masking PR merged.**
-   The `mask-aws-account-id: true` + scrub-plan-output combo handles future
-   runs, but older runs were captured before those mitigations landed:
+2. **Delete workflow run logs for every historical Deploy or CI Gate run
+   before the log-masking PR merged.** The `mask-aws-account-id: true` +
+   scrub-plan-output combo handles future runs, but older runs were
+   captured before those mitigations landed. Uses `--paginate` to walk
+   beyond the default 100-run page and the same `env -u GITHUB_TOKEN` on
+   both list and delete so auth is consistent:
 
    ```bash
    REPO=JacobPEvans/terraform-runs-on
-   gh run list --repo "$REPO" --limit 100 \
-     --json databaseId,workflowName \
-     --jq '.[] | select(.workflowName == "Deploy"
-                     or .workflowName == "CI Gate")
-               | .databaseId' \
-     | while read RUN; do
-         env -u GITHUB_TOKEN gh api -X DELETE \
-           "repos/${REPO}/actions/runs/${RUN}/logs" || true
-       done
+   env -u GITHUB_TOKEN gh api --paginate \
+     "repos/${REPO}/actions/runs?per_page=100" \
+     --jq '.workflow_runs[]
+           | select(.name == "Deploy" or .name == "CI Gate")
+           | .id' \
+   | while read RUN; do
+       env -u GITHUB_TOKEN gh api -X DELETE \
+         "repos/${REPO}/actions/runs/${RUN}/logs" || true
+     done
    ```
 
 3. **Confirm the most recent CI Gate run on the PR you're about to merge
