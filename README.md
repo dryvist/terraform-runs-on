@@ -50,7 +50,7 @@ jobs:
   build:
     runs-on: "runs-on=${{ github.run_id }}/runner=2cpu-linux-x64/family=c7+m7"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: echo "Running on RunsOn!"
 ```
 
