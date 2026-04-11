@@ -113,16 +113,18 @@ jobs:
           # output parser. Disable it so tfcmt sees clean terraform text.
           TERRAGRUNT_LOG_DISABLE: "true"
           # tfcmt replaces every regex match in stdout, stderr, AND the
-          # posted comment body with `***`. Patterns cover every structural
-          # identifier that could leak into plan output on this repo:
-          # bare 12-digit AWS account IDs, any arn:aws:* (IAM roles,
-          # Secrets Manager, EventBridge, Scheduler, SNS, SQS, AppRunner),
-          # 64-char hex hashes (Docker image digests and RunsOn config
-          # hashes), and aws- resource IDs like vpc-* and sg-*. Pipe is
-          # an unambiguous separator since none of these patterns contain
-          # a pipe character.
-          TFCMT_MASKS_SEPARATOR: "|"
-          TFCMT_MASKS: "regexp:\\b[0-9]{12}\\b|regexp:arn:aws:[^ \"]+|regexp:\\b[a-f0-9]{64}\\b|regexp:vpc-[a-f0-9]{8,17}|regexp:sg-[a-f0-9]{8,17}"
+          # posted comment body with `***`. Four patterns, `;;;` separator
+          # (chosen so the resource-id pattern can use regex alternation):
+          # 1. Bare 12-digit AWS account IDs (word-bounded so timestamp
+          #    substrings inside longer digit runs don't match)
+          # 2. Any arn:aws:* (IAM, Secrets Manager, EventBridge, Scheduler,
+          #    SNS, SQS, AppRunner, EC2, etc.)
+          # 3. 64-char hex hashes (Docker image manifest digests, RunsOn
+          #    config hashes)
+          # 4. AWS resource IDs with their standard short prefixes
+          #    (vpc/subnet/sg/lt/i/ami/vol/snap/rtb/igw/nat/acl/eni/tgw/eip/eipalloc)
+          TFCMT_MASKS_SEPARATOR: ";;;"
+          TFCMT_MASKS: "regexp:\\b[0-9]{12}\\b;;;regexp:arn:aws:[^ \"]+;;;regexp:\\b[a-f0-9]{64}\\b;;;regexp:\\b(vpc|subnet|sg|lt|i|ami|vol|snap|rtb|igw|nat|acl|eni|tgw|eip|eipalloc)-[a-f0-9]{8,17}\\b"
         # tfcmt runs `terragrunt plan`, captures its output, applies the
         # masks, and posts the (masked) result as a PR comment via the
         # GitHub API. `-patch` (plan-subcommand flag) updates the previous
