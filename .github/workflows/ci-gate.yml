@@ -72,9 +72,19 @@ jobs:
         if: steps.check.outputs.skip != 'true'
       - name: Install Terragrunt
         if: steps.check.outputs.skip != 'true'
-        env:
-          TG_VERSION: v1.0.0
-        run: .github/scripts/install-terragrunt.sh
+        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
+        with:
+          repo: gruntwork-io/terragrunt
+          tag: v1.0.0
+          extension-matching: disable
+          rename-to: terragrunt
+          chmod: 0755
+      - name: Install tfcmt
+        if: steps.check.outputs.skip != 'true'
+        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
+        with:
+          repo: suzuki-shunsuke/tfcmt
+          tag: v4.14.15
       - name: Fetch secrets from Doppler
         if: steps.check.outputs.skip != 'true'
         id: doppler
@@ -91,114 +101,35 @@ jobs:
           role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
           mask-aws-account-id: true
-      - name: Register structural identifiers with the log masker
-        if: steps.check.outputs.skip != 'true'
-        uses: actions/github-script@v9
-        with:
-          script: |
-            // mask-aws-account-id on configure-aws-credentials already covers
-            // the account ID. For other structural identifiers (VPC, SG,
-            // Secrets Manager ARNs) that may appear in terragrunt error
-            // output on plan failure, fetch them via the aws CLI and
-            // register each with core.setSecret — the @actions/core toolkit's
-            // equivalent of the ::add-mask:: workflow command. No text
-            // processing, no custom logic — native API responses piped to
-            // the native masking primitive.
-            const { execSync } = require('child_process');
-            const fetch = (cmd) => {
-              try {
-                return execSync(cmd, { encoding: 'utf8' })
-                  .trim()
-                  .split(/\s+/)
-                  .filter(Boolean);
-              } catch {
-                return [];
-              }
-            };
-            const values = [
-              ...fetch("aws ec2 describe-vpcs --filters Name=tag:runs-on,Values=runs-on --query Vpcs[*].VpcId --output text"),
-              ...fetch("aws ec2 describe-security-groups --filters Name=group-name,Values=runs-on-* --query SecurityGroups[*].GroupId --output text"),
-              ...fetch("aws secretsmanager list-secrets --filters Key=name,Values=/runs-on/ --query SecretList[*].ARN --output text"),
-            ];
-            for (const v of values) {
-              core.setSecret(v);
-            }
-            core.info(`registered ${values.length} values with the log masker`);
       - name: Terragrunt Init
         if: steps.check.outputs.skip != 'true'
         run: terragrunt init
-      - name: Terragrunt Plan
+      - name: Terragrunt Plan (via tfcmt)
         if: steps.check.outputs.skip != 'true'
-        id: plan
-        continue-on-error: true
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
-        # Save the plan as a binary file at an absolute path under the
-        # workspace. Suppress the text diff from stdout so attribute values
-        # never hit the workflow log. Error output on failure still flows
-        # to stderr where the masks registered above redact it.
-        run: terragrunt plan -no-color -out="$GITHUB_WORKSPACE/tfplan" > /dev/null
-      - name: Export plan as structured JSON
-        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success'
-        run: terragrunt show -json "$GITHUB_WORKSPACE/tfplan" > "$GITHUB_WORKSPACE/plan.json"
-      - name: Upload tfplan artifact
-        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: tfplan-${{ github.run_id }}
-          path: tfplan
-          retention-days: 7
-      - name: Render plan summary and post to PR
-        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success' && github.event_name == 'pull_request'
-        uses: actions/github-script@v9
-        with:
-          script: |
-            // Structured plan consumption — no text munging. We load the
-            // tofu show -json output and select ONLY fields that are
-            // non-sensitive by definition: address (terraform identifier),
-            // type (provider schema name), and actions (verbs). Attribute
-            // values under .change.before / .change.after are never read,
-            // so there is nothing to scrub.
-            const fs = require('fs');
-            const plan = JSON.parse(
-              fs.readFileSync(`${process.env.GITHUB_WORKSPACE}/plan.json`, 'utf8')
-            );
-            const changes = (plan.resource_changes || []).filter(rc =>
-              !(rc.change.actions.length === 1 && rc.change.actions[0] === 'no-op')
-            );
-            const counts = {};
-            const rows = [];
-            for (const rc of changes) {
-              const key = rc.change.actions.join('+');
-              counts[key] = (counts[key] || 0) + 1;
-              rows.push(`| ${key} | \`${rc.type}\` | \`${rc.address}\` |`);
-            }
-            const countLine = Object.entries(counts).length
-              ? Object.entries(counts)
-                  .map(([a, c]) => `${c} to ${a}`)
-                  .join(', ')
-              : 'no changes';
-            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
-            let body = `## Terraform Plan\n\n${countLine}\n\n`;
-            if (rows.length > 0) {
-              body +=
-                `| Action | Type | Address |\n|---|---|---|\n` +
-                rows.join('\n') +
-                `\n\n`;
-            }
-            body +=
-              `_Only resource addresses and action types are shown. ` +
-              `Download the \`tfplan\` artifact from the [workflow run](${runUrl}) ` +
-              `and run \`tofu show tfplan\` locally for attribute-level detail._`;
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body
-            });
-      - name: Fail if plan failed
-        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'failure'
-        run: exit 1
+          # Terragrunt's default timestamp prefix breaks tfcmt's terraform
+          # output parser. Disable it so tfcmt sees clean terraform text.
+          TERRAGRUNT_LOG_DISABLE: "true"
+          # tfcmt replaces every regex match in stdout, stderr, AND the
+          # posted comment body with `***`. Patterns cover every structural
+          # identifier that could leak into plan output on this repo:
+          # bare 12-digit AWS account IDs, any arn:aws:* (IAM roles,
+          # Secrets Manager, EventBridge, Scheduler, SNS, SQS, AppRunner),
+          # 64-char hex hashes (Docker image digests and RunsOn config
+          # hashes), and aws- resource IDs like vpc-* and sg-*. Pipe is
+          # an unambiguous separator since none of these patterns contain
+          # a pipe character.
+          TFCMT_MASKS_SEPARATOR: "|"
+          TFCMT_MASKS: "regexp:\\b[0-9]{12}\\b|regexp:arn:aws:[^ \"]+|regexp:\\b[a-f0-9]{64}\\b|regexp:vpc-[a-f0-9]{8,17}|regexp:sg-[a-f0-9]{8,17}"
+        # tfcmt runs `terragrunt plan`, captures its output, applies the
+        # masks, and posts the (masked) result as a PR comment via the
+        # GitHub API. --patch updates the previous plan comment on this
+        # PR instead of stacking new ones on every push. Exit code from
+        # `terragrunt plan` propagates through tfcmt, so plan failures
+        # still fail the job.
+        run: tfcmt --patch plan -- terragrunt plan -no-color
 
   gate:
     name: Merge Gate

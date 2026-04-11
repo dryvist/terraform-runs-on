@@ -123,16 +123,18 @@ any of these will leak AWS account IDs, resource ARNs, or structural hints.
    ```
 
 2. **Delete workflow run logs for every historical Deploy or CI Gate run
-   before the log-masking PR merged.** The current workflow uses
-   `mask-aws-account-id: true` on `aws-actions/configure-aws-credentials`,
-   fetches VPC/SG/Secrets Manager ARNs via the AWS CLI and feeds them to
-   `core.setSecret` in an `actions/github-script` step, redirects
-   `terragrunt plan` stdout to `/dev/null`, and posts a structured
-   summary (derived from `tofu show -json tfplan` via
-   `actions/github-script`) to the PR instead of the raw plan text.
-   Older runs predating these mitigations need their logs deleted.
-   Uses `--paginate` to walk beyond the default 100-run page and the
-   same `env -u GITHUB_TOKEN` on both list and delete so auth is
+   before the masking PR merged.** The current workflow uses
+   [suzuki-shunsuke/tfcmt](https://github.com/suzuki-shunsuke/tfcmt)
+   to run `terragrunt plan` — tfcmt captures stdout/stderr, applies
+   regex masks from `TFCMT_MASKS`, and posts the masked diff as a PR
+   comment. The regex set covers 12-digit account IDs, any
+   `arn:aws:*`, 64-char hex digests, `vpc-*`, and `sg-*`. The
+   `mask-aws-account-id: true` input on
+   `aws-actions/configure-aws-credentials@v6` stays as belt-and-braces
+   for the account ID in log display. Older runs predating these
+   mitigations still need their logs deleted. Uses `--paginate` to
+   walk beyond the default 100-run page and the same
+   `env -u GITHUB_TOKEN` on both list and delete so auth is
    consistent:
 
    ```bash
