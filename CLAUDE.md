@@ -92,6 +92,69 @@ installed — they never need a license secret.
 ~$5-8/month: App Runner (~$3) + EC2 spot (~$1-4) + CloudWatch ($0.50).
 Budget alarm alerts at 50%, 80%, 100% of $10/month.
 
+## Going public checklist
+
+When flipping this repo from private to public, follow every step. Skipping
+any of these will leak AWS account IDs, resource ARNs, or structural hints.
+
+1. **Run a sensitive-data sweep on every open PR comment.** Any `#### Terraform
+   Plan` comment posted by `github-actions[bot]` contains the raw plan output
+   with account IDs and ARNs. Delete them before flipping public:
+
+   ```bash
+   REPO=JacobPEvans/terraform-runs-on
+   for PR in $(gh pr list --repo "$REPO" --state all --limit 50 \
+                 --json number --jq '.[].number'); do
+     gh api graphql -f query="query { repository(owner:\"JacobPEvans\",
+         name:\"terraform-runs-on\") { pullRequest(number:${PR}) {
+         comments(first:50) { nodes { databaseId body } } } } }" \
+       --jq '.data.repository.pullRequest.comments.nodes[]
+             | select(.body | startswith("#### Terraform Plan"))
+             | .databaseId' \
+       | while read CID; do
+           env -u GITHUB_TOKEN gh api -X DELETE \
+             "repos/${REPO}/issues/comments/${CID}"
+         done
+   done
+   ```
+
+2. **Delete workflow run logs for any run in the last 90 days that ran
+   `Terragrunt Plan` or `Terragrunt Apply` before the log-masking PR merged.**
+   The `mask-aws-account-id: true` + scrub-plan-output combo handles future
+   runs, but older runs were captured before those mitigations landed:
+
+   ```bash
+   REPO=JacobPEvans/terraform-runs-on
+   gh run list --repo "$REPO" --limit 100 \
+     --json databaseId,workflowName \
+     --jq '.[] | select(.workflowName == "Deploy"
+                     or .workflowName == "CI Gate")
+               | .databaseId' \
+     | while read RUN; do
+         env -u GITHUB_TOKEN gh api -X DELETE \
+           "repos/${REPO}/actions/runs/${RUN}/logs" || true
+       done
+   ```
+
+3. **Confirm the most recent CI Gate run on the PR you're about to merge
+   shows `***` where the account ID would appear in the raw log**, and its
+   posted plan comment contains `REDACTED` (not digits) for account ID,
+   Secrets Manager ARN suffixes, VPC IDs, and security group IDs.
+
+4. **Run pre-commit gitleaks locally** before pushing the flip:
+
+   ```bash
+   pre-commit run gitleaks --all-files
+   ```
+
+5. **Verify no unstaged or stashed changes contain real account IDs or
+   ARNs.** Check `git stash list`, `git status`, and any uncommitted
+   `.terragrunt-cache/` artifacts (the cache is gitignored but not scrubbed).
+
+Flip the visibility only after all five steps pass. See the `eager-launching-badger`
+plan (Phase 5) for the full audit/remediation history that established this
+checklist.
+
 ## Worktree Structure
 
 ```text

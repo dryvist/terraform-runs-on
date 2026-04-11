@@ -84,10 +84,12 @@ jobs:
           doppler-config: prd
       - name: Configure AWS Credentials
         if: steps.check.outputs.skip != 'true'
+        id: creds
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
+          mask-aws-account-id: true
       - name: Terragrunt Init
         if: steps.check.outputs.skip != 'true'
         run: terragrunt init
@@ -97,6 +99,11 @@ jobs:
         env:
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
         run: terragrunt plan -no-color -out=tfplan 2>&1 | tee plan_output.txt
+      - name: Scrub plan output before posting
+        if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
+        env:
+          AWS_ACCOUNT_ID: ${{ steps.creds.outputs.aws-account-id }}
+        run: .github/scripts/scrub-plan-output.sh plan_output.txt
       - name: Post Plan to PR
         if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
         uses: actions/github-script@v9
