@@ -40,4 +40,15 @@ sed -i -E 's|:secret:[^ "]+|:secret:REDACTED|g' "$PLAN_FILE"
 sed -i -E 's/vpc-[0-9a-f]{8,17}/vpc-REDACTED/g' "$PLAN_FILE"
 sed -i -E 's/sg-[0-9a-f]{8,17}/sg-REDACTED/g' "$PLAN_FILE"
 
+# Redact any standalone 64-character hexadecimal string. This catches:
+#   - Docker image manifest digests (public.ecr.aws/.../runs-on@sha256:<hash>)
+#   - RunsOn config paths that embed the same digest (/runs-on/runs-on/config/<hash>)
+#   - SHA256 content hashes from any other source
+# Most of these are technically public (ECR image digests) but they identify
+# the exact stack version and config state, which is structural info we
+# prefer to hide from public-facing PR comments. Base64 provider hashes in
+# terraform lockfiles do not match this pattern (they contain uppercase
+# letters and "+/=" characters).
+sed -i -E 's/[0-9a-f]{64}/REDACTED_SHA256/g' "$PLAN_FILE"
+
 echo "scrub-plan-output: $PLAN_FILE scrubbed"
