@@ -90,7 +90,10 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     resources = ["*"]
   }
 
-  # IAM scoped to runs-on resources only
+  # IAM scoped to runs-on* and terraform-runs-on* resources only.
+  # The terraform-runs-on-github-actions role itself is managed by this
+  # terraform project, so the role needs to be able to refresh its own
+  # state (iam:GetRole, iam:GetRolePolicy, etc.) during plan.
   statement {
     effect = "Allow"
     actions = [
@@ -100,6 +103,8 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/runs-on*",
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/runs-on*",
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/runs-on*",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/terraform-runs-on*",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/terraform-runs-on*",
     ]
   }
 
