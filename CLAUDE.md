@@ -80,8 +80,8 @@ direnv allow    # one-time per worktree, then automatic
 | Secret | Source | Used By |
 | ------ | ------ | ------- |
 | `RUNSON_LICENSE_KEY` | Doppler (`iac-conf-mgmt/prd`) | Local: `doppler run`; CI: `ci-gate.yml` plan + `deploy.yml` apply |
+| `TERRAFORM_RUNS_ON_OIDC_ROLE_ARN` | Doppler (`iac-conf-mgmt/prd`) | CI: `ci-gate.yml` plan + `deploy.yml` apply OIDC auth |
 | `GH_ACTION_DOPPLER_IAC_CONF_MGMT` | GitHub repo secret (secrets-sync Tier 2) | `ci-gate.yml` + `deploy.yml` Doppler fetch step |
-| `AWS_OIDC_ROLE_ARN` | GitHub repo secret | `ci-gate.yml` plan + `deploy.yml` apply OIDC auth |
 | AWS credentials | aws-vault profile `tf-runs-on` | Local terragrunt S3 backend auth |
 
 Consumer repos using the deployed runner only need the RunsOn GitHub App
