@@ -123,11 +123,17 @@ any of these will leak AWS account IDs, resource ARNs, or structural hints.
    ```
 
 2. **Delete workflow run logs for every historical Deploy or CI Gate run
-   before the log-masking PR merged.** The `mask-aws-account-id: true` +
-   scrub-plan-output combo handles future runs, but older runs were
-   captured before those mitigations landed. Uses `--paginate` to walk
-   beyond the default 100-run page and the same `env -u GITHUB_TOKEN` on
-   both list and delete so auth is consistent:
+   before the log-masking PR merged.** The current workflow uses
+   `mask-aws-account-id: true` on `aws-actions/configure-aws-credentials`,
+   fetches VPC/SG/Secrets Manager ARNs via the AWS CLI and feeds them to
+   `core.setSecret` in an `actions/github-script` step, redirects
+   `terragrunt plan` stdout to `/dev/null`, and posts a structured
+   summary (derived from `tofu show -json tfplan` via
+   `actions/github-script`) to the PR instead of the raw plan text.
+   Older runs predating these mitigations need their logs deleted.
+   Uses `--paginate` to walk beyond the default 100-run page and the
+   same `env -u GITHUB_TOKEN` on both list and delete so auth is
+   consistent:
 
    ```bash
    REPO=JacobPEvans/terraform-runs-on
@@ -142,10 +148,14 @@ any of these will leak AWS account IDs, resource ARNs, or structural hints.
      done
    ```
 
-3. **Confirm the most recent CI Gate run on the PR you're about to merge
-   shows `***` where the account ID would appear in the raw log**, and its
-   posted plan comment contains `REDACTED` (not digits) for account ID,
-   Secrets Manager ARN suffixes, VPC IDs, and security group IDs.
+3. **Confirm the latest CI Gate run on the PR you're about to merge**
+   posts a `## Terraform Plan` comment whose body contains only a
+   `| Action | Type | Address |` table — no attribute values, no ARNs,
+   no account ID, no VPC/SG/Secrets Manager identifiers. Full
+   attribute-level detail must only be available via the
+   `tfplan-<run_id>` workflow artifact (which is access-gated to repo
+   members). And confirm the raw workflow log of the Terragrunt Plan
+   step shows no text diff — only the binary plan file was written.
 
 4. **Run pre-commit gitleaks locally** before pushing the flip:
 

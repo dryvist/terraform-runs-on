@@ -91,6 +91,39 @@ jobs:
           role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
           mask-aws-account-id: true
+      - name: Register structural identifiers with the log masker
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            // mask-aws-account-id on configure-aws-credentials already covers
+            // the account ID. For other structural identifiers (VPC, SG,
+            // Secrets Manager ARNs) that may appear in terragrunt error
+            // output on plan failure, fetch them via the aws CLI and
+            // register each with core.setSecret — the @actions/core toolkit's
+            // equivalent of the ::add-mask:: workflow command. No text
+            // processing, no custom logic — native API responses piped to
+            // the native masking primitive.
+            const { execSync } = require('child_process');
+            const fetch = (cmd) => {
+              try {
+                return execSync(cmd, { encoding: 'utf8' })
+                  .trim()
+                  .split(/\s+/)
+                  .filter(Boolean);
+              } catch {
+                return [];
+              }
+            };
+            const values = [
+              ...fetch("aws ec2 describe-vpcs --filters Name=tag:runs-on,Values=runs-on --query Vpcs[*].VpcId --output text"),
+              ...fetch("aws ec2 describe-security-groups --filters Name=group-name,Values=runs-on-* --query SecurityGroups[*].GroupId --output text"),
+              ...fetch("aws secretsmanager list-secrets --filters Key=name,Values=/runs-on/ --query SecretList[*].ARN --output text"),
+            ];
+            for (const v of values) {
+              core.setSecret(v);
+            }
+            core.info(`registered ${values.length} values with the log masker`);
       - name: Terragrunt Init
         if: steps.check.outputs.skip != 'true'
         run: terragrunt init
@@ -100,38 +133,68 @@ jobs:
         continue-on-error: true
         env:
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
-        # Redirect to file only — never to stdout — so sensitive structural
-        # identifiers (VPC, SG, Secrets Manager hashes) that mask-aws-account-id
-        # does not cover never hit the workflow log. The scrubbed version is
-        # printed by the next step.
-        run: terragrunt plan -no-color -out=tfplan > plan_output.txt 2>&1
-      - name: Scrub and display plan output
-        if: steps.check.outputs.skip != 'true'
-        env:
-          AWS_ACCOUNT_ID: ${{ steps.creds.outputs.aws-account-id }}
-        run: |
-          .github/scripts/scrub-plan-output.sh plan_output.txt
-          cat plan_output.txt
-      - name: Post Plan to PR
-        if: steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
+        # Save the plan as a binary file at an absolute path under the
+        # workspace. Suppress the text diff from stdout so attribute values
+        # never hit the workflow log. Error output on failure still flows
+        # to stderr where the masks registered above redact it.
+        run: terragrunt plan -no-color -out="$GITHUB_WORKSPACE/tfplan" > /dev/null
+      - name: Export plan as structured JSON
+        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success'
+        run: terragrunt show -json "$GITHUB_WORKSPACE/tfplan" > "$GITHUB_WORKSPACE/plan.json"
+      - name: Upload tfplan artifact
+        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.run_id }}
+          path: tfplan
+          retention-days: 7
+      - name: Render plan summary and post to PR
+        if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'success' && github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |
+            // Structured plan consumption — no text munging. We load the
+            // tofu show -json output and select ONLY fields that are
+            // non-sensitive by definition: address (terraform identifier),
+            // type (provider schema name), and actions (verbs). Attribute
+            // values under .change.before / .change.after are never read,
+            // so there is nothing to scrub.
             const fs = require('fs');
-            const plan = fs.readFileSync('plan_output.txt', 'utf8').slice(-60000);
-            const output = `#### Terraform Plan
-            <details><summary>Show Plan</summary>
-
-            \`\`\`
-            ${plan}
-            \`\`\`
-
-            </details>`;
-            github.rest.issues.createComment({
+            const plan = JSON.parse(
+              fs.readFileSync(`${process.env.GITHUB_WORKSPACE}/plan.json`, 'utf8')
+            );
+            const changes = (plan.resource_changes || []).filter(rc =>
+              !(rc.change.actions.length === 1 && rc.change.actions[0] === 'no-op')
+            );
+            const counts = {};
+            const rows = [];
+            for (const rc of changes) {
+              const key = rc.change.actions.join('+');
+              counts[key] = (counts[key] || 0) + 1;
+              rows.push(`| ${key} | \`${rc.type}\` | \`${rc.address}\` |`);
+            }
+            const countLine = Object.entries(counts).length
+              ? Object.entries(counts)
+                  .map(([a, c]) => `${c} to ${a}`)
+                  .join(', ')
+              : 'no changes';
+            const runUrl = `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`;
+            let body = `## Terraform Plan\n\n${countLine}\n\n`;
+            if (rows.length > 0) {
+              body +=
+                `| Action | Type | Address |\n|---|---|---|\n` +
+                rows.join('\n') +
+                `\n\n`;
+            }
+            body +=
+              `_Only resource addresses and action types are shown. ` +
+              `Download the \`tfplan\` artifact from the [workflow run](${runUrl}) ` +
+              `and run \`tofu show tfplan\` locally for attribute-level detail._`;
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: output
+              body
             });
       - name: Fail if plan failed
         if: steps.check.outputs.skip != 'true' && steps.plan.outcome == 'failure'
