@@ -2,7 +2,7 @@ module "runs_on" {
   source  = "runs-on/runs-on/aws"
   version = "~> 2.12"
 
-  # Required. license_key is injected at runtime via RUNSON_LICENSE_KEY (see CLAUDE.md).
+  # Required. license_key and AWS OIDC role ARN are fetched at runtime from Doppler (see CLAUDE.md).
   github_organization = var.github_organization
   license_key         = var.license_key
   email               = var.email

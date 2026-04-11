@@ -55,14 +55,14 @@ jobs:
       contents: read
       id-token: write
       pull-requests: write
-    env:
-      OIDC_ROLE_ARN: ${{ secrets.AWS_OIDC_ROLE_ARN }}
     steps:
-      - name: Check OIDC Configuration
+      - name: Check Doppler Configuration
         id: check
+        env:
+          DOPPLER_TOKEN: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
         run: |
-          if [ -z "$OIDC_ROLE_ARN" ]; then
-            echo "::warning::AWS_OIDC_ROLE_ARN secret not configured — skipping plan (expected during initial bootstrap)"
+          if [ -z "$DOPPLER_TOKEN" ]; then
+            echo "::warning::GH_ACTION_DOPPLER_IAC_CONF_MGMT secret not configured — skipping plan (expected during initial bootstrap)"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v4
@@ -73,13 +73,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         with:
           terragrunt-version: latest
-      - name: Configure AWS Credentials
-        if: steps.check.outputs.skip != 'true'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
-          aws-region: us-east-2
-      - name: Fetch RunsOn license from Doppler
+      - name: Fetch secrets from Doppler
         if: steps.check.outputs.skip != 'true'
         id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
@@ -87,6 +81,12 @@ jobs:
           doppler-token: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
           doppler-project: iac-conf-mgmt
           doppler-config: prd
+      - name: Configure AWS Credentials
+        if: steps.check.outputs.skip != 'true'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
+          aws-region: us-east-2
       - name: Terragrunt Init
         if: steps.check.outputs.skip != 'true'
         run: terragrunt init
