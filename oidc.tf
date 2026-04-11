@@ -148,6 +148,66 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     ]
     resources = ["*"]
   }
+
+  # EventBridge rules — RunsOn spot interruption rule and cost-allocation tag rule
+  # are created by the RunsOn CloudFormation stack; terraform refreshes their
+  # state during plan to detect drift.
+  statement {
+    effect    = "Allow"
+    actions   = ["events:*"]
+    resources = ["arn:aws:events:*:${data.aws_caller_identity.current.account_id}:rule/runs-on*"]
+  }
+
+  # EventBridge Scheduler — runs-on-cost-report and runs-on-cost-allocation-tag
+  # schedules are created by the RunsOn CloudFormation stack. Scoped to the
+  # default schedule group's runs-on* schedules.
+  statement {
+    effect  = "Allow"
+    actions = ["scheduler:*"]
+    resources = [
+      "arn:aws:scheduler:*:${data.aws_caller_identity.current.account_id}:schedule/default/runs-on*",
+    ]
+  }
+
+  # Secrets Manager — /runs-on/* secrets hold the RunsOn stack config. Scoped
+  # to the /runs-on/ path prefix so the role cannot read unrelated secrets.
+  statement {
+    effect  = "Allow"
+    actions = ["secretsmanager:*"]
+    resources = [
+      "arn:aws:secretsmanager:*:${data.aws_caller_identity.current.account_id}:secret:/runs-on/*",
+    ]
+  }
+
+  # Resource Groups — runs-on-ec2-instances is a tag-based group used by the
+  # RunsOn cost dashboards. Scoped to runs-on* groups only.
+  statement {
+    effect    = "Allow"
+    actions   = ["resource-groups:*"]
+    resources = ["arn:aws:resource-groups:*:${data.aws_caller_identity.current.account_id}:group/runs-on*"]
+  }
+
+  # IAM OIDC provider — managed directly by terraform (not via CloudFormation),
+  # so the role needs full CRUD on the specific provider ARN. The wider iam:*
+  # statement above is scoped to runs-on* resources and does NOT cover the
+  # oidc-provider/* path.
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:GetOpenIDConnectProvider",
+      "iam:CreateOpenIDConnectProvider",
+      "iam:DeleteOpenIDConnectProvider",
+      "iam:UpdateOpenIDConnectProviderThumbprint",
+      "iam:AddClientIDToOpenIDConnectProvider",
+      "iam:RemoveClientIDFromOpenIDConnectProvider",
+      "iam:TagOpenIDConnectProvider",
+      "iam:UntagOpenIDConnectProvider",
+      "iam:ListOpenIDConnectProviderTags",
+    ]
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "github_actions" {
