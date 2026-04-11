@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.4...v0.2.5) (2026-04-11)
+
+
+### Bug Fixes
+
+* **ci:** fetch OIDC role ARN from Doppler at runtime ([#21](https://github.com/JacobPEvans/terraform-runs-on/issues/21)) ([688de09](https://github.com/JacobPEvans/terraform-runs-on/commit/688de092b950db1765a55745415c9695517b1f91))
+
 ## [0.2.4](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.3...v0.2.4) (2026-04-10)
 
 
