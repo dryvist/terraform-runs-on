@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.6](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.5...v0.2.6) (2026-04-11)
+
+
+### Bug Fixes
+
+* **ci:** upgrade Node 20 actions to Node 24 versions ([#23](https://github.com/JacobPEvans/terraform-runs-on/issues/23)) ([e52aab2](https://github.com/JacobPEvans/terraform-runs-on/commit/e52aab2c1b3555cc09ed558f68194b96a804d5ad))
+
 ## [0.2.5](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.4...v0.2.5) (2026-04-11)
 
 
