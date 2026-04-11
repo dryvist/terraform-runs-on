@@ -29,10 +29,11 @@ fi
 # assumed-role sessions, etc.).
 sed -i "s/${AWS_ACCOUNT_ID}/REDACTED/g" "$PLAN_FILE"
 
-# Redact the 6-character random suffix AWS appends to Secrets Manager secret
-# names. The prefix is preserved so humans can still recognize which secret
-# is referenced, but the unique suffix is gone.
-sed -i -E 's/:secret:([^ "]+)-[A-Za-z0-9]{6}/:secret:\1-REDACTED/g' "$PLAN_FILE"
+# Redact the full Secrets Manager secret path. AWS embeds a stable config
+# hash AND appends a 6-character random suffix — both together uniquely
+# identify the secret, so redacting just the suffix still leaks the hash.
+# Redact everything after ":secret:" up to the next whitespace or quote.
+sed -i -E 's|:secret:[^ "]+|:secret:REDACTED|g' "$PLAN_FILE"
 
 # Redact VPC IDs and Security Group IDs — they reveal topology and enable
 # targeted resource enumeration against the account.
