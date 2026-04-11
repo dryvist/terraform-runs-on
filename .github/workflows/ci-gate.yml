@@ -55,11 +55,11 @@ jobs:
       contents: read
       id-token: write
       pull-requests: write
-    env:
-      DOPPLER_TOKEN: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
     steps:
       - name: Check Doppler Configuration
         id: check
+        env:
+          DOPPLER_TOKEN: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
         run: |
           if [ -z "$DOPPLER_TOKEN" ]; then
             echo "::warning::GH_ACTION_DOPPLER_IAC_CONF_MGMT secret not configured — skipping plan (expected during initial bootstrap)"
