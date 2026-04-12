@@ -2,6 +2,7 @@
   "version": "0.2",
   "language": "en",
   "words": [
+    "agentics",
     "autero",
     "awscli",
     "cidr",
@@ -9,6 +10,7 @@
     "direnv",
     "dopplerhq",
     "envrc",
+    "githubnext",
     "nixpkgs",
     "oidc",
     "opentofu",
@@ -25,6 +27,7 @@
     "vpc"
   ],
   "ignorePaths": [
+    ".github/aw/**",
     ".terraform/",
     ".terragrunt-cache/",
     ".direnv/",
