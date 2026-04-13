@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.7](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.6...v0.2.7) (2026-04-13)
+
+
+### Bug Fixes
+
+* recompile gh-aw workflows with v0.68.1 ([33fa681](https://github.com/JacobPEvans/terraform-runs-on/commit/33fa681b242d14c771c88070fe37dd56b751e005))
+
 ## [0.2.6](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.5...v0.2.6) (2026-04-11)
 
 
