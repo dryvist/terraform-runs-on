@@ -56,6 +56,10 @@ jobs:
       contents: read
       id-token: write
       pull-requests: write
+    env:
+      # Suppress Terragrunt's own log lines (which echo state bucket / lock
+      # table names) for all terragrunt steps in this job.
+      TERRAGRUNT_LOG_DISABLE: "true"
     steps:
       - name: Check Doppler Configuration
         id: check
@@ -93,12 +97,13 @@ jobs:
           doppler-token: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
           doppler-project: iac-conf-mgmt
           doppler-config: prd
+          inject-env-vars: true
       - name: Configure AWS Credentials
         if: steps.check.outputs.skip != 'true'
         id: creds
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
+          role-to-assume: ${{ env.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
           mask-aws-account-id: true
       - name: Terragrunt Init
@@ -108,10 +113,6 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
-          # Terragrunt's default timestamp prefix breaks tfcmt's terraform
-          # output parser. Disable it so tfcmt sees clean terraform text.
-          TERRAGRUNT_LOG_DISABLE: "true"
           # tfcmt replaces every regex match in stdout, stderr, AND the
           # posted comment body with `***`. Four patterns, `;;;` separator
           # (chosen so the resource-id pattern can use regex alternation):

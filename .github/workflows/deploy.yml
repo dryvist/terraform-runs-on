@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
+    env:
+      TERRAGRUNT_LOG_DISABLE: "true"
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
@@ -41,16 +43,15 @@ jobs:
           doppler-token: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
           doppler-project: iac-conf-mgmt
           doppler-config: prd
+          inject-env-vars: true
       - name: Configure AWS Credentials
         id: creds
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
+          role-to-assume: ${{ env.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
           mask-aws-account-id: true
       - name: Terragrunt Init
         run: terragrunt init
       - name: Terragrunt Apply
-        env:
-          RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
         run: terragrunt apply -auto-approve -no-color
