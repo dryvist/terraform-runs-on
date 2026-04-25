@@ -74,21 +74,11 @@ jobs:
         if: steps.check.outputs.skip != 'true'
       - uses: hashicorp/setup-terraform@v4
         if: steps.check.outputs.skip != 'true'
-      - name: Install Terragrunt
+      - name: Install terragrunt and tfcmt via aqua
         if: steps.check.outputs.skip != 'true'
-        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
+        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          repo: gruntwork-io/terragrunt
-          tag: v1.0.0
-          extension-matching: disable
-          rename-to: terragrunt
-          chmod: 0755
-      - name: Install tfcmt
-        if: steps.check.outputs.skip != 'true'
-        # tfcmt's release tarball includes a third_party_licenses tree with
-        # colliding LICENSE filenames that break jaxxstorm/action-install-gh-
-        # release's recursive binary install. Extract just the tfcmt binary.
-        run: curl -sSLf https://github.com/suzuki-shunsuke/tfcmt/releases/download/v4.14.15/tfcmt_linux_amd64.tar.gz | tar xz -C /usr/local/bin tfcmt
+          aqua_version: v2.57.1
       - name: Fetch secrets from Doppler
         if: steps.check.outputs.skip != 'true'
         id: doppler

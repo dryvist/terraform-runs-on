@@ -28,14 +28,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
-      - name: Install Terragrunt
-        uses: jaxxstorm/action-install-gh-release@25e24d2d23ae098373794ef1d6faecb48ee52da8 # v3.0.0
+      - name: Install terragrunt via aqua
+        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
-          repo: gruntwork-io/terragrunt
-          tag: v1.0.0
-          extension-matching: disable
-          rename-to: terragrunt
-          chmod: 0755
+          aqua_version: v2.57.1
       - name: Fetch secrets from Doppler
         id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
