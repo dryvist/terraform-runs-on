@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.8](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.7...v0.2.8) (2026-04-25)
+
+
+### Bug Fixes
+
+* **ci:** mask AWS account ID and scrub sensitive output across CI/CD ([fd8026f](https://github.com/JacobPEvans/terraform-runs-on/commit/fd8026fd115ea81e72092601fd0146f389e80f4b)), closes [#26](https://github.com/JacobPEvans/terraform-runs-on/issues/26)
+
 ## [0.2.7](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.6...v0.2.7) (2026-04-13)
 
 
