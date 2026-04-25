@@ -8,6 +8,11 @@ repos:
         exclude: '\.github/workflows/.*\.lock\.yml$'
       - id: check-added-large-files
 
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+
   - repo: https://github.com/antonbabenko/pre-commit-terraform
     rev: v1.92.0
     hooks:

@@ -26,6 +26,7 @@ variable "otel_exporter_endpoint" {
   description = "OpenTelemetry exporter endpoint (Cribl.Cloud OTLP URL)"
   type        = string
   default     = ""
+  sensitive   = true
 }
 
 variable "otel_exporter_headers" {

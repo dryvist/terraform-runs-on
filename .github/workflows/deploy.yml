@@ -23,13 +23,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
+    env:
+      TERRAGRUNT_LOG_DISABLE: "true"
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
-      - name: Install Terragrunt
-        env:
-          TG_VERSION: v1.0.0
-        run: .github/scripts/install-terragrunt.sh
+      - name: Install terragrunt via aqua
+        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
+        with:
+          aqua_version: v2.57.1
       - name: Fetch secrets from Doppler
         id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
@@ -38,13 +40,17 @@ jobs:
           doppler-project: iac-conf-mgmt
           doppler-config: prd
       - name: Configure AWS Credentials
+        id: creds
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ steps.doppler.outputs.TERRAFORM_RUNS_ON_OIDC_ROLE_ARN }}
           aws-region: us-east-2
+          mask-aws-account-id: true
       - name: Terragrunt Init
         run: terragrunt init
       - name: Terragrunt Apply
         env:
+          # Pass RUNSON_LICENSE_KEY explicitly — terragrunt.hcl reads it
+          # via get_env() to populate the license_key input.
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
         run: terragrunt apply -auto-approve -no-color

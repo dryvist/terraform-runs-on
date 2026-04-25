@@ -1,0 +1,25 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "aws-account-id"
+description = "Bare 12-digit AWS account ID"
+regex = '''\b[0-9]{12}\b'''
+keywords = []
+[rules.allowlist]
+regexes = [
+  # Timestamps and other 12-digit numbers that are clearly not account IDs
+  '''\d{4}-\d{2}-\d{2}''',
+]
+
+[[rules]]
+id = "terraform-state-bucket"
+description = "Terraform state bucket name containing account ID"
+regex = '''\b\d{12}-(use2|use1|usw2|euw1)-tfstate-'''
+keywords = ["tfstate"]
+
+[[rules]]
+id = "oidc-role-arn"
+description = "Full OIDC or GitHub Actions IAM role ARN"
+regex = '''arn:aws:iam::\d{12}:role/[A-Za-z0-9_+=,.@/-]+'''
+keywords = ["arn:aws:iam"]
