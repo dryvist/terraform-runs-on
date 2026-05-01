@@ -1,6 +1,6 @@
 module "runs_on" {
   source  = "runs-on/runs-on/aws"
-  version = "~> 2.12"
+  version = "~> 3.0"
 
   # Required. license_key and OIDC role ARN are fetched at runtime from Doppler (see CLAUDE.md).
   github_organization = var.github_organization
