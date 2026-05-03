@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.9](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.8...v0.2.9) (2026-05-03)
+
+
+### Bug Fixes
+
+* **ci:** remove deprecated app-id secret passthrough ([71d8dcf](https://github.com/JacobPEvans/terraform-runs-on/commit/71d8dcf3b36ea35deded48b7a550f9252a5de129))
+
 ## [0.2.8](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.7...v0.2.8) (2026-04-25)
 
 
