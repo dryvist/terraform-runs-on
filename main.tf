@@ -1,5 +1,5 @@
 module "runs_on" {
-  source  = "runs-on/runs-on/aws"
+  source  = "runs-on/runs-on/aws//modules/flex"
   version = "~> 3.0"
 
   # Required. license_key and OIDC role ARN are fetched at runtime from Doppler (see CLAUDE.md).
@@ -12,7 +12,6 @@ module "runs_on" {
   # Non-default overrides
   logger_level        = "debug"
   log_retention_days  = 30
-  default_admins      = "JacobPEvans"
   cost_allocation_tag = "runs-on"
   tags                = local.common_tags
 
