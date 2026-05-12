@@ -6,7 +6,7 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["terraform"],
+      "matchManagers": ["terraform", "terragrunt"],
       "groupName": "terraform dependencies"
     }
   ]
