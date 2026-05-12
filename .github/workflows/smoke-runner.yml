@@ -1,7 +1,13 @@
 name: Smoke test RunsOn runner
 
 on:
+  schedule:
+    - cron: '*/10 * * * *'
   workflow_dispatch: {}
+
+concurrency:
+  group: smoke-runner
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -34,3 +40,9 @@ jobs:
           echo
           echo "=== env (filtered) ==="
           env | grep -E '^(RUNNER_|GITHUB_|CI|HOSTNAME)=' | sort
+
+      - name: Ping healthchecks.io
+        env:
+          HC_KEY: ${{ vars.HEALTHCHECK_PING_KEY }}
+          HC_SLUG: ${{ vars.HEALTHCHECK_SLUG_RUNSON }}
+        run: curl -fsS --retry 3 "https://hc-ping.com/$HC_KEY/$HC_SLUG"
