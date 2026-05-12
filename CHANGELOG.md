@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.0...v0.3.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* batch terraform and terragrunt dependency updates ([#46](https://github.com/JacobPEvans/terraform-runs-on/issues/46)) ([ff528b5](https://github.com/JacobPEvans/terraform-runs-on/commit/ff528b5af0e752494d052b5eef7e4df1a4968acc))
+* ungate terraform_* pre-commit hooks ([#48](https://github.com/JacobPEvans/terraform-runs-on/issues/48)) [issue-solver-2026-05-11] ([#49](https://github.com/JacobPEvans/terraform-runs-on/issues/49)) ([a2430e9](https://github.com/JacobPEvans/terraform-runs-on/commit/a2430e93cca23858b2994b060f0f263313190ffc))
+
 ## [0.3.0](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.9...v0.3.0) (2026-05-12)
 
 
