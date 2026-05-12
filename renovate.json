@@ -3,5 +3,11 @@
   "extends": [
     "config:recommended",
     "local>JacobPEvans/.github:renovate-presets"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["terraform", "terragrunt"],
+      "groupName": "terraform dependencies"
+    }
   ]
 }
