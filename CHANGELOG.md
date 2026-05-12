@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.3.0](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.9...v0.3.0) (2026-05-12)
+
+
+### Features
+
+* **ci:** add scheduled fleet canary with healthchecks.io ping ([#51](https://github.com/JacobPEvans/terraform-runs-on/issues/51)) ([a5c7db9](https://github.com/JacobPEvans/terraform-runs-on/commit/a5c7db97f2f429a18381e4505d189a887b7fccb0))
+
+
+### Bug Fixes
+
+* **ci:** add workflow_dispatch trigger as manual escape valve ([#50](https://github.com/JacobPEvans/terraform-runs-on/issues/50)) ([088bfb8](https://github.com/JacobPEvans/terraform-runs-on/commit/088bfb8ee7fb0354cfa71ea3ed6a4b8feb7637f7))
+
 ## [0.2.9](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.2.8...v0.2.9) (2026-05-03)
 
 
