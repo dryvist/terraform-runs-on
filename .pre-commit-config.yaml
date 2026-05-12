@@ -17,17 +17,13 @@ repos:
     rev: v1.92.0
     hooks:
       - id: terraform_fmt
-        stages: [manual]
       - id: terraform_validate
-        stages: [manual]
       - id: terraform_docs
-        stages: [manual]
         args:
           - --hook-config=--path-to-file=README.md
           - --hook-config=--add-to-existing-file=true
           - --hook-config=--create-file-if-not-exist=true
       - id: terraform_tflint
-        stages: [manual]
         args:
           - --args=--only=terraform_deprecated_interpolation
           - --args=--only=terraform_deprecated_index
