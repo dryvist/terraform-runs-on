@@ -6,7 +6,7 @@ on:
   workflow_dispatch: {}
 
 concurrency:
-  group: smoke-runner
+  group: smoke-runner-${{ github.event_name }}
   cancel-in-progress: true
 
 permissions:
@@ -45,4 +45,4 @@ jobs:
         env:
           HC_KEY: ${{ vars.HEALTHCHECK_PING_KEY }}
           HC_SLUG: ${{ vars.HEALTHCHECK_SLUG_RUNSON }}
-        run: curl -fsS --retry 3 "https://hc-ping.com/$HC_KEY/$HC_SLUG"
+        run: curl -fsS --retry 3 --connect-timeout 5 --max-time 10 "https://hc-ping.com/$HC_KEY/$HC_SLUG"
