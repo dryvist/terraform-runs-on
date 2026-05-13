@@ -9,6 +9,10 @@ module "runs_on" {
   vpc_id              = aws_vpc.runs_on.id
   public_subnet_ids   = aws_subnet.public[*].id
 
+  # Required in v3 (flex submodule)
+  app_size             = var.app_size
+  app_budget_daily_usd = var.app_budget_daily_usd
+
   # Non-default overrides
   logger_level        = "debug"
   log_retention_days  = 30

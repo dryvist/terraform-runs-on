@@ -41,3 +41,15 @@ variable "monthly_budget_usd" {
   type        = number
   default     = 10.0
 }
+
+variable "app_size" {
+  description = "RunsOn control-plane size (v3 flex submodule). Replaces app_cpu/app_memory/ec2_queue_size from v2. Valid: small, medium, large, xlarge."
+  type        = string
+  default     = "small"
+}
+
+variable "app_budget_daily_usd" {
+  description = "Daily spend ceiling for the RunsOn fleet in USD (v3 replacement for the daily-minutes alarm). 5 USD/day pairs with the existing 10 USD/month account budget."
+  type        = number
+  default     = 5
+}
