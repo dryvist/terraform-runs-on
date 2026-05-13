@@ -102,3 +102,61 @@ aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply chan
 
 <!-- BEGIN_TF_DOCS -->
 <!-- END_TF_DOCS -->
+<!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
+
+## Providers
+
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.45.0 |
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_runs_on"></a> [runs\_on](#module\_runs\_on) | runs-on/runs-on/aws//modules/flex | ~> 3.0 |
+
+## Resources
+
+| Name | Type |
+|------|------|
+| [aws_budgets_budget.runs_on](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/budgets_budget) | resource |
+| [aws_iam_openid_connect_provider.github](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_openid_connect_provider) | resource |
+| [aws_iam_role.github_actions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.github_actions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_internet_gateway.runs_on](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/internet_gateway) | resource |
+| [aws_route_table.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table) | resource |
+| [aws_route_table_association.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route_table_association) | resource |
+| [aws_subnet.public](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/subnet) | resource |
+| [aws_vpc.runs_on](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc) | resource |
+| [aws_availability_zones.available](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/availability_zones) | data source |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
+| [aws_iam_policy_document.github_actions_permissions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_iam_policy_document.github_actions_trust](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_app_budget_daily_usd"></a> [app\_budget\_daily\_usd](#input\_app\_budget\_daily\_usd) | Daily spend ceiling for the RunsOn fleet in USD (v3 replacement for the daily-minutes alarm). 5 USD/day pairs with the existing 10 USD/month account budget. | `number` | `5` | no |
+| <a name="input_app_size"></a> [app\_size](#input\_app\_size) | RunsOn control-plane size (v3 flex submodule). Replaces app\_cpu/app\_memory/ec2\_queue\_size from v2. Valid: small, medium, large, xlarge. | `string` | `"small"` | no |
+| <a name="input_email"></a> [email](#input\_email) | Email for cost and alert reports | `string` | `"20714140+JacobPEvans@users.noreply.github.com"` | no |
+| <a name="input_github_organization"></a> [github\_organization](#input\_github\_organization) | GitHub organization or username | `string` | `"JacobPEvans"` | no |
+| <a name="input_license_key"></a> [license\_key](#input\_license\_key) | RunsOn license key | `string` | n/a | yes |
+| <a name="input_monthly_budget_usd"></a> [monthly\_budget\_usd](#input\_monthly\_budget\_usd) | Monthly budget limit in USD | `number` | `10` | no |
+| <a name="input_otel_exporter_endpoint"></a> [otel\_exporter\_endpoint](#input\_otel\_exporter\_endpoint) | OpenTelemetry exporter endpoint (Cribl.Cloud OTLP URL) | `string` | `""` | no |
+| <a name="input_otel_exporter_headers"></a> [otel\_exporter\_headers](#input\_otel\_exporter\_headers) | OpenTelemetry exporter headers (W3C Baggage format) | `string` | `""` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_budget_name"></a> [budget\_name](#output\_budget\_name) | Name of the AWS Budget |
+| <a name="output_github_actions_role_arn"></a> [github\_actions\_role\_arn](#output\_github\_actions\_role\_arn) | IAM role ARN for GitHub Actions OIDC authentication |
+<!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->

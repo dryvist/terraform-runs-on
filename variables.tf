@@ -1,9 +1,3 @@
-variable "aws_region" {
-  description = "AWS region for deployment"
-  type        = string
-  default     = "us-east-2"
-}
-
 variable "github_organization" {
   description = "GitHub organization or username"
   type        = string
