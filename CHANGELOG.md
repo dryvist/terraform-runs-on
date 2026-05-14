@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.1...v0.3.2) (2026-05-14)
+
+
+### Bug Fixes
+
+* prepare repo for v3 control plane apply ([#55](https://github.com/JacobPEvans/terraform-runs-on/issues/55)) ([5461b21](https://github.com/JacobPEvans/terraform-runs-on/commit/5461b21f42fa2b1b945eee4647800f5ae6771fb3))
+
 ## [0.3.1](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.0...v0.3.1) (2026-05-12)
 
 
