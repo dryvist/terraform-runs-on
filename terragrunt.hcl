@@ -25,7 +25,6 @@ remote_state {
 }
 
 inputs = {
-  aws_region  = local.aws_region
   license_key = get_env("RUNSON_LICENSE_KEY", "")
 }
 

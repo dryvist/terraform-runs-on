@@ -100,5 +100,6 @@ aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply chan
 - **Merge to main**: Automatic `terragrunt apply` via OIDC (requires `production` environment approval)
 - **Releases**: Automated via Release Please
 
-<!-- BEGIN_TF_DOCS -->
-<!-- END_TF_DOCS -->
+## Inputs & Outputs
+
+Variable descriptions and defaults live in `variables.tf`; outputs in `outputs.tf`.

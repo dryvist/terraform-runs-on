@@ -213,6 +213,61 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com",
     ]
   }
+
+  # Lambda — v3 control plane deploys runs-on-public-ingress, runs-on-stack-config-materializer,
+  # runs-on-github-runner-cache-refresh. Scoped to runs-on* function names; the trailing
+  # :* variant covers versions and aliases.
+  statement {
+    effect  = "Allow"
+    actions = ["lambda:*"]
+    resources = [
+      "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:runs-on*",
+      "arn:aws:lambda:*:${data.aws_caller_identity.current.account_id}:function:runs-on*:*",
+    ]
+  }
+
+  # API Gateway — v3 public ingress is a REST API. The tags resource is a separate ARN
+  # path and apigateway:PUT/POST/DELETE/etc. all need /tags/* coverage to attach the
+  # common_tags set.
+  statement {
+    effect  = "Allow"
+    actions = ["apigateway:*"]
+    resources = [
+      "arn:aws:apigateway:*::/restapis*",
+      "arn:aws:apigateway:*::/tags/*",
+    ]
+  }
+
+  # SSM Parameter Store — v3 publishes /runs-on/license/status and other state under
+  # the /runs-on/ namespace. Split into two statements: Describe/List actions operate
+  # at the service level (require Resource: *) and CRUD operates on specific parameter
+  # ARNs. Same pattern as the logs/cloudwatch statements above.
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:DescribeParameters",
+      "ssm:GetParametersByPath",
+      "ssm:ListTagsForResource",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParameterHistory",
+      "ssm:PutParameter",
+      "ssm:DeleteParameter",
+      "ssm:DeleteParameters",
+      "ssm:AddTagsToResource",
+      "ssm:RemoveTagsFromResource",
+      "ssm:LabelParameterVersion",
+    ]
+    resources = [
+      "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/runs-on/*",
+    ]
+  }
 }
 
 resource "aws_iam_role_policy" "github_actions" {
