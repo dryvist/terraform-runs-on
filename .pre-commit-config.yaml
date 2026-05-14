@@ -18,11 +18,12 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
-      - id: terraform_docs
-        args:
-          - --hook-config=--path-to-file=README.md
-          - --hook-config=--add-to-existing-file=true
-          - --hook-config=--create-file-if-not-exist=true
+      # terraform_docs hook intentionally omitted: its output (markdown table
+      # formatter) mixes "aligned" and "compact" table styles in the README,
+      # which markdownlint v0.40's MD060 (table-column-style) refuses across
+      # the file even when the rule is set to false at config level. Input/
+      # output documentation lives in variables.tf and outputs.tf descriptions
+      # — adequate for a single-module repo.
       - id: terraform_tflint
         args:
           - --args=--only=terraform_deprecated_interpolation

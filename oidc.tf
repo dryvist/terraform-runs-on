@@ -239,10 +239,31 @@ data "aws_iam_policy_document" "github_actions_permissions" {
   }
 
   # SSM Parameter Store — v3 publishes /runs-on/license/status and other state under
-  # the /runs-on/ namespace.
+  # the /runs-on/ namespace. Split into two statements: Describe/List actions operate
+  # at the service level (require Resource: *) and CRUD operates on specific parameter
+  # ARNs. Same pattern as the logs/cloudwatch statements above.
   statement {
-    effect  = "Allow"
-    actions = ["ssm:*"]
+    effect = "Allow"
+    actions = [
+      "ssm:DescribeParameters",
+      "ssm:GetParametersByPath",
+      "ssm:ListTagsForResource",
+    ]
+    resources = ["*"]
+  }
+  statement {
+    effect = "Allow"
+    actions = [
+      "ssm:GetParameter",
+      "ssm:GetParameters",
+      "ssm:GetParameterHistory",
+      "ssm:PutParameter",
+      "ssm:DeleteParameter",
+      "ssm:DeleteParameters",
+      "ssm:AddTagsToResource",
+      "ssm:RemoveTagsFromResource",
+      "ssm:LabelParameterVersion",
+    ]
     resources = [
       "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/runs-on/*",
     ]
