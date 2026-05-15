@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.3...v0.3.4) (2026-05-15)
+
+
+### Bug Fixes
+
+* **iac:** complete v3 bootstrap — ECS perms, SLR, alerts, ingress output ([#59](https://github.com/JacobPEvans/terraform-runs-on/issues/59)) ([578ceaa](https://github.com/JacobPEvans/terraform-runs-on/commit/578ceaaa6fd08605c3ce941730dbd14783ab4994))
+
 ## [0.3.3](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.2...v0.3.3) (2026-05-15)
 
 
