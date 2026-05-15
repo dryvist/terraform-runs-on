@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.2...v0.3.3) (2026-05-15)
+
+
+### Bug Fixes
+
+* **ci:** make smoke-runner healthcheck ping conditional on HC key ([#61](https://github.com/JacobPEvans/terraform-runs-on/issues/61)) ([d10abd9](https://github.com/JacobPEvans/terraform-runs-on/commit/d10abd963d411e2597d8e556a28b5d9a962e257f))
+
 ## [0.3.2](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.1...v0.3.2) (2026-05-14)
 
 
