@@ -43,6 +43,9 @@ jobs:
 
       - name: Ping healthchecks.io
         env:
-          HC_KEY: ${{ vars.HEALTHCHECK_PING_KEY }}
+          # PING_KEY is the project-level identifier and is sensitive — stored
+          # as a repo secret. SLUG is the check name within that project, safe
+          # to expose as a repo var.
+          HC_KEY: ${{ secrets.HEALTHCHECK_PING_KEY }}
           HC_SLUG: ${{ vars.HEALTHCHECK_SLUG_RUNSON }}
         run: curl -fsS --retry 3 --connect-timeout 5 --max-time 10 "https://hc-ping.com/$HC_KEY/$HC_SLUG"
