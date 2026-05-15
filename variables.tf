@@ -20,7 +20,9 @@ variable "email" {
   }
 
   validation {
-    condition     = !endswith(var.email, "@users.noreply.github.com")
+    # Trim before matching so accidental trailing/leading whitespace doesn't
+    # let a noreply address sneak past the suffix check.
+    condition     = !endswith(trimspace(var.email), "@users.noreply.github.com")
     error_message = "email must be a real inbox; GitHub noreply addresses cannot confirm SNS subscriptions."
   }
 }

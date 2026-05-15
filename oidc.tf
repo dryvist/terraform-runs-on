@@ -270,9 +270,10 @@ data "aws_iam_policy_document" "github_actions_permissions" {
   }
 
   # ECS — v3 control plane runs on Fargate. Cluster is named "runs-on"; task
-  # definitions and services are prefixed "runs-on-". Register/Describe/List
-  # task-definition operations are service-level per AWS (no resource-level
-  # restriction available).
+  # definitions and services are prefixed "runs-on-". Describe* actions also
+  # included here because they DO support resource-level scoping (AWS
+  # service-authorization reference: ECS Describe* operations all carry a
+  # specific resource type).
   statement {
     effect  = "Allow"
     actions = ["ecs:*"]
@@ -288,14 +289,15 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:task/runs-on-*/*",
     ]
   }
+  # ECS service-level actions — these have no resource-level scoping per AWS
+  # service-authorization reference (List*, RegisterTaskDefinition). They are
+  # bounded by the calling principal being this CI role only.
   statement {
     effect = "Allow"
     actions = [
       "ecs:RegisterTaskDefinition",
-      "ecs:DescribeTaskDefinition",
       "ecs:ListTaskDefinitions",
       "ecs:ListClusters",
-      "ecs:DescribeClusters",
       "ecs:ListServices",
       "ecs:ListTaskDefinitionFamilies",
     ]
@@ -313,7 +315,7 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "iam:CreateServiceLinkedRole",
       "iam:ListRoleTags",
     ]
-    resources = ["arn:aws:iam::*:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"]
     condition {
       test     = "StringEqualsIfExists"
       variable = "iam:AWSServiceName"
