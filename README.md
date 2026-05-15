@@ -59,6 +59,14 @@ The `${{ github.run_id }}` segment is required so RunsOn can correlate the
 documentation](https://runs-on.com/configuration/job-labels/) for runner sizes
 and other options.
 
+## Migrating other repos to RunsOn
+
+See [`docs/migration-guide.md`](docs/migration-guide.md) for the canonical
+per-repo migration playbook: prerequisites, the runner label catalog used
+across this org, which workflows make sense to migrate (and which don't),
+rollout order, and how to verify a migrated workflow landed on RunsOn
+instead of github-hosted compute.
+
 ## Installation
 
 ### Prerequisites
