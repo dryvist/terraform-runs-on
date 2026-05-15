@@ -18,9 +18,13 @@
 #     arn:aws:iam::<account>:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS
 resource "aws_iam_service_linked_role" "ecs" {
   aws_service_name = "ecs.amazonaws.com"
-  description      = "AWS-managed role for ECS to manage runs-on Fargate cluster"
 
   lifecycle {
     prevent_destroy = true
+    # Service-linked roles are AWS-managed, account-wide singletons. Other
+    # terraform projects in this account also use ECS, so we don't claim
+    # description or tags here — let AWS set its defaults and stay out of
+    # contention with other projects.
+    ignore_changes = [tags, tags_all, description]
   }
 }
