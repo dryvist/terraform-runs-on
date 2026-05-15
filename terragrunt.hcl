@@ -25,7 +25,9 @@ remote_state {
 }
 
 inputs = {
-  license_key = get_env("RUNSON_LICENSE_KEY", "")
+  license_key             = get_env("RUNSON_LICENSE_KEY", "")
+  email                   = get_env("RUNSON_ALERT_EMAIL", "")
+  alert_slack_webhook_url = get_env("RUNSON_ALERT_SLACK_WEBHOOK_URL", "")
 }
 
 generate "provider" {

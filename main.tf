@@ -22,4 +22,7 @@ module "runs_on" {
   # OTEL — Cribl.Cloud Free endpoint
   otel_exporter_endpoint = var.otel_exporter_endpoint
   otel_exporter_headers  = var.otel_exporter_headers
+
+  # Alert routing — email is always set, Slack webhook is optional
+  alert_slack_webhook_url = var.alert_slack_webhook_url
 }

@@ -102,9 +102,11 @@ jobs:
         if: steps.check.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Pass RUNSON_LICENSE_KEY explicitly — terragrunt.hcl reads it
-          # via get_env() to populate the license_key input.
+          # terragrunt.hcl reads these via get_env() to populate module inputs.
+          # All values come from trusted Doppler step outputs (not user input).
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
+          RUNSON_ALERT_EMAIL: ${{ steps.doppler.outputs.RUNSON_ALERT_EMAIL }}
+          RUNSON_ALERT_SLACK_WEBHOOK_URL: ${{ steps.doppler.outputs.RUNSON_ALERT_SLACK_WEBHOOK_URL }}
           # tfcmt replaces every regex match in stdout, stderr, AND the
           # posted comment body with `***`. Four patterns, `;;;` separator
           # (chosen so the resource-id pattern can use regex alternation):

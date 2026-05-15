@@ -268,6 +268,60 @@ data "aws_iam_policy_document" "github_actions_permissions" {
       "arn:aws:ssm:*:${data.aws_caller_identity.current.account_id}:parameter/runs-on/*",
     ]
   }
+
+  # ECS — v3 control plane runs on Fargate. Cluster is named "runs-on"; task
+  # definitions and services are prefixed "runs-on-". Describe* actions also
+  # included here because they DO support resource-level scoping (AWS
+  # service-authorization reference: ECS Describe* operations all carry a
+  # specific resource type).
+  statement {
+    effect  = "Allow"
+    actions = ["ecs:*"]
+    resources = [
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:cluster/runs-on",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:cluster/runs-on-*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:service/runs-on/*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:service/runs-on-*/*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:task-definition/runs-on-*:*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:container-instance/runs-on/*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:container-instance/runs-on-*/*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:task/runs-on/*",
+      "arn:aws:ecs:*:${data.aws_caller_identity.current.account_id}:task/runs-on-*/*",
+    ]
+  }
+  # ECS service-level actions — these have no resource-level scoping per AWS
+  # service-authorization reference (List*, RegisterTaskDefinition). They are
+  # bounded by the calling principal being this CI role only.
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:RegisterTaskDefinition",
+      "ecs:ListTaskDefinitions",
+      "ecs:ListClusters",
+      "ecs:ListServices",
+      "ecs:ListTaskDefinitionFamilies",
+    ]
+    resources = ["*"]
+  }
+
+  # ECS service-linked role — managed via aws_iam_service_linked_role.ecs in
+  # bootstrap.tf. iam:GetRole is needed for terraform refresh; iam:CreateServiceLinkedRole
+  # lets a fresh AWS account create the SLR on first apply (existing accounts have
+  # it imported into state). Condition limits create to the ECS SLR only.
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:GetRole",
+      "iam:CreateServiceLinkedRole",
+      "iam:ListRoleTags",
+    ]
+    resources = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS"]
+    condition {
+      test     = "StringEqualsIfExists"
+      variable = "iam:AWSServiceName"
+      values   = ["ecs.amazonaws.com"]
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "github_actions" {
