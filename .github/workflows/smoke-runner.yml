@@ -42,6 +42,12 @@ jobs:
           env | grep -E '^(RUNNER_|GITHUB_|CI|HOSTNAME)=' | sort
 
       - name: Ping healthchecks.io
+        # Conditional — only ping if the ping key is configured at the repo
+        # level. The canary's real signal is that the runner spun up at all;
+        # the healthcheck.io ping is opt-in monitoring and shouldn't fail the
+        # job when the var hasn't been set. To enable, add the var:
+        #   gh variable set HEALTHCHECK_PING_KEY --repo JacobPEvans/terraform-runs-on
+        if: vars.HEALTHCHECK_PING_KEY != ''
         env:
           HC_KEY: ${{ vars.HEALTHCHECK_PING_KEY }}
           HC_SLUG: ${{ vars.HEALTHCHECK_SLUG_RUNSON }}
