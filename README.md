@@ -65,7 +65,7 @@ See [`docs/migration-guide.md`](docs/migration-guide.md) for the canonical
 per-repo migration playbook: prerequisites, the runner label catalog used
 across this org, which workflows make sense to migrate (and which don't),
 rollout order, and how to verify a migrated workflow landed on RunsOn
-instead of github-hosted compute.
+instead of GitHub-hosted compute.
 
 ## Installation
 

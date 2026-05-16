@@ -12,17 +12,17 @@ compute with no queue wait.
 
 A repository can opt in to RunsOn runners only after all four are true:
 
-1. The RunsOn CloudFormation stack is applied from `terraform-runs-on/main`
+1. The RunsOn CloudFormation stack is applied from the `main/` directory
    (`terragrunt apply` completes and the App Runner URL responds).
 2. The RunsOn GitHub App is installed on the target repository. The app
    installation page is reached from the App Runner URL printed by
    `terragrunt output`. The app must list the target repo in its allowlist —
    either by selecting "All repositories" at install time, or by adding the
    repo individually under the App settings page.
-3. The repository's default branch contains workflows that reference the
-   v3 label format (`runs-on=${{ github.run_id }}/runner=...`). The legacy
-   v2 label `runs-on=...,runner=...` still parses, but the v3 docs are
-   canonical going forward.
+3. Migrated workflows reference the v3 RunsOn label format:
+   `runs-on=${{ github.run_id }}/runner=...`. The legacy v2 label
+   `runs-on=...,runner=...` still parses, but use the v3 format for
+   all new migrations.
 4. Cost allocation tags are propagated. The Terraform config in this repo
    already passes `cost_allocation_tag = "runs-on"`, which sets the AWS
    `runs-on` tag on every EC2 instance launched. No per-repo action needed.
@@ -81,7 +81,7 @@ After migration: ~14 minutes of RunsOn spot at ~$0.03/hr (`m8i.large`)
 entirely off the GitHub Actions meter on the public side (which is what
 this org actually cares about — staying inside the free tier).
 
-Add the App Runner overhead (~$3/month fixed) and CloudWatch (~$0.50/month),
+Add the fixed infrastructure overhead (see [Cost](../README.md#cost)),
 and the breakeven for nix-darwin alone is roughly 50 PRs/month. Adding
 nix-ai pushes the math further in favor of RunsOn.
 
