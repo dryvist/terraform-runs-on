@@ -12,6 +12,7 @@ resource "aws_budgets_budget" "runs_on" {
       "Amazon Elastic Container Service",
       "AWS Lambda",
       "Amazon API Gateway",
+      "AWS WAF",
       "Amazon Simple Storage Service",
       "AmazonCloudWatch",
     ]
