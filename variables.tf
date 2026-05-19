@@ -49,9 +49,9 @@ variable "otel_exporter_headers" {
 }
 
 variable "monthly_budget_usd" {
-  description = "Monthly budget limit in USD"
+  description = "Monthly AWS Budget alarm threshold in USD for the RunsOn cost-filter set in budget.tf. Default 20 covers the v3 baseline (control plane + EC2 spot + CloudWatch) plus the managed WAF when enable_waf=true. Drop to ~$10 if you set enable_waf=false."
   type        = number
-  default     = 10.0
+  default     = 20.0
 }
 
 variable "app_size" {
@@ -72,7 +72,7 @@ variable "app_budget_daily_usd" {
 }
 
 variable "enable_waf" {
-  description = "Attach the RunsOn-managed Web ACL to the v3 API Gateway ingress. Default true — the managed WAF is free and tightens the public ingress posture."
+  description = "Attach the RunsOn-managed Web ACL to the v3 API Gateway ingress (one WAFv2 ACL + 3 rules — restricts /github/webhooks to GitHub's published IP ranges and tightens the public ingress posture). Default true. Adds AWS WAFv2 charges to the bill; flip to false if cost outweighs the hardening on this stack."
   type        = bool
   default     = true
 }
