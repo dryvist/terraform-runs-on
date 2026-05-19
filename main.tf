@@ -13,6 +13,13 @@ module "runs_on" {
   app_size             = var.app_size
   app_budget_daily_usd = var.app_budget_daily_usd
 
+  # v3 ingress hardening — managed WAF + admin-route gating
+  enable_waf          = var.enable_waf
+  enable_admin_routes = var.enable_admin_routes
+
+  # v3 optional runner capability — Bedrock model access from CI
+  enable_bedrock = var.enable_bedrock
+
   # Non-default overrides
   logger_level        = "debug"
   log_retention_days  = 30

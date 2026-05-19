@@ -13,9 +13,9 @@ compute with no queue wait.
 A repository can opt in to RunsOn runners only after all four are true:
 
 1. The RunsOn CloudFormation stack is applied from the `main/` directory
-   (`terragrunt apply` completes and the App Runner URL responds).
+   (`terragrunt apply` completes and the ingress URL responds).
 2. The RunsOn GitHub App is installed on the target repository. The app
-   installation page is reached from the App Runner URL printed by
+   installation page is reached from the ingress URL printed by
    `terragrunt output`. The app must list the target repo in its allowlist —
    either by selecting "All repositories" at install time, or by adding the
    repo individually under the App settings page.
@@ -137,7 +137,7 @@ takes over again.
    `Set up runner` group must include `RUNS_ON_VERSION=v3.x.x` and an
    `RUNS_ON_INSTANCE_ID=i-...` line. If those are missing, the job ran on
    github-hosted compute despite the label.
-2. Check the RunsOn dashboard at the App Runner URL — the instance should
+2. Check the RunsOn dashboard at the ingress URL — the instance should
    appear under "Recent runs" with the right repo, workflow, and job ID.
 3. Confirm the instance terminated. RunsOn terminates spot instances when
    the job completes; long-lived instances indicate a bug.

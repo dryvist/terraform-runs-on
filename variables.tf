@@ -55,13 +55,13 @@ variable "monthly_budget_usd" {
 }
 
 variable "app_size" {
-  description = "RunsOn control-plane size (v3 flex submodule). Replaces `app_cpu`/`app_memory`/`ec2_queue_size` from v2."
+  description = "RunsOn control-plane size (v3 flex submodule). One of: small, medium, high, xhigh. Replaces `app_cpu`/`app_memory`/`ec2_queue_size` from v2."
   type        = string
   default     = "small"
 
   validation {
-    condition     = contains(["small", "medium", "large", "xlarge"], var.app_size)
-    error_message = "app_size must be one of: small, medium, large, xlarge."
+    condition     = contains(["small", "medium", "high", "xhigh"], var.app_size)
+    error_message = "app_size must be one of: small, medium, high, xhigh."
   }
 }
 
@@ -69,4 +69,22 @@ variable "app_budget_daily_usd" {
   description = "Per-day spend ceiling for the RunsOn fleet (v3 replacement for the v2 daily-minutes alarm). This is a runaway-cost safety cap, NOT an expected-spend target — the account-level monthly_budget_usd is the spend target. Set high enough that normal traffic never hits it; the failure mode is fleet halt on a bad day."
   type        = number
   default     = 5
+}
+
+variable "enable_waf" {
+  description = "Attach the RunsOn-managed Web ACL to the v3 API Gateway ingress. Default true — the managed WAF is free and tightens the public ingress posture."
+  type        = bool
+  default     = true
+}
+
+variable "enable_admin_routes" {
+  description = "Expose the public setup and admin routes on the v3 ingress. Keep true during initial bootstrap so the GitHub App can be registered. Flip to false once setup is complete to close the public admin surface."
+  type        = bool
+  default     = true
+}
+
+variable "enable_bedrock" {
+  description = "Grant the RunsOn EC2 runner instance profile permission to invoke Amazon Bedrock models. Default false; opt in only when CI workflows need Bedrock model access (the model still has to be enabled in the AWS account separately)."
+  type        = bool
+  default     = false
 }
