@@ -121,7 +121,11 @@ aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply chan
 
 ## CI/CD
 
-- **PR**: Automatic `terraform validate` + `terragrunt plan` (posted as PR comment)
+- **PR**: Automatic `terraform validate` + `terragrunt plan` posted as a
+  redacted structural summary (resource addresses + change actions only,
+  via [`tf-summarize`](https://github.com/dineshba/tf-summarize)).
+  Resolved attribute values are never rendered. See
+  [`docs/ci-plan-output-policy.md`](docs/ci-plan-output-policy.md).
 - **Merge to main**: Automatic `terragrunt apply` via OIDC (requires `production` environment approval)
 - **Releases**: Automated via Release Please
 

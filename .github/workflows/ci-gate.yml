@@ -74,7 +74,7 @@ jobs:
         if: steps.check.outputs.skip != 'true'
       - uses: hashicorp/setup-terraform@v4
         if: steps.check.outputs.skip != 'true'
-      - name: Install terragrunt and tfcmt via aqua
+      - name: Install terragrunt and tf-summarize via aqua
         if: steps.check.outputs.skip != 'true'
         uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:
@@ -98,35 +98,39 @@ jobs:
       - name: Terragrunt Init
         if: steps.check.outputs.skip != 'true'
         run: terragrunt init
-      - name: Terragrunt Plan (via tfcmt)
+      # Plan body is intentionally not echoed to the workflow log. On a
+      # public repo the log is world-readable, and no regex-based mask
+      # set can reliably redact AWS resource identifiers (API Gateway
+      # IDs, S3 bucket names, function ARNs, etc.). See
+      # docs/ci-plan-output-policy.md.
+      - name: Terragrunt Plan (produce binary plan)
         if: steps.check.outputs.skip != 'true'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # terragrunt.hcl reads these via get_env() to populate module inputs.
           # All values come from trusted Doppler step outputs (not user input).
           RUNSON_LICENSE_KEY: ${{ steps.doppler.outputs.RUNSON_LICENSE_KEY }}
           RUNSON_ALERT_EMAIL: ${{ steps.doppler.outputs.RUNSON_ALERT_EMAIL }}
           RUNSON_ALERT_SLACK_WEBHOOK_URL: ${{ steps.doppler.outputs.RUNSON_ALERT_SLACK_WEBHOOK_URL }}
-          # tfcmt replaces every regex match in stdout, stderr, AND the
-          # posted comment body with `***`. Four patterns, `;;;` separator
-          # (chosen so the resource-id pattern can use regex alternation):
-          # 1. Bare 12-digit AWS account IDs (word-bounded so timestamp
-          #    substrings inside longer digit runs don't match)
-          # 2. Any arn:aws:* (IAM, Secrets Manager, EventBridge, Scheduler,
-          #    SNS, SQS, AppRunner, EC2, etc.)
-          # 3. 64-char hex hashes (Docker image manifest digests, RunsOn
-          #    config hashes)
-          # 4. AWS resource IDs with their standard short prefixes
-          #    (vpc/subnet/sg/lt/i/ami/vol/snap/rtb/igw/nat/acl/eni/tgw/eip/eipalloc)
-          TFCMT_MASKS_SEPARATOR: ";;;"
-          TFCMT_MASKS: "regexp:\\b[0-9]{12}\\b;;;regexp:arn:aws:[^ \"]+;;;regexp:\\b[a-f0-9]{64}\\b;;;regexp:\\b(vpc|subnet|sg|lt|i|ami|vol|snap|rtb|igw|nat|acl|eni|tgw|eip|eipalloc)-[a-f0-9]{8,17}\\b"
-        # tfcmt runs `terragrunt plan`, captures its output, applies the
-        # masks, and posts the (masked) result as a PR comment via the
-        # GitHub API. `-patch` (plan-subcommand flag) updates the previous
-        # plan comment on this PR instead of stacking new ones on every
-        # push. Exit code from `terragrunt plan` propagates through tfcmt,
-        # so plan failures still fail the job.
-        run: tfcmt plan -patch -- terragrunt plan -no-color
+        run: terragrunt plan -out=plan.tfplan -no-color > /dev/null
+
+      # tf-summarize reads terraform's first-class JSON plan
+      # representation and projects only resource addresses + actions.
+      # change.before / change.after are never rendered, so resolved
+      # attribute values cannot reach the PR comment.
+      #
+      # `success()` is required because a custom `if:` overrides
+      # the default `if: success()` — without it, this step would
+      # run even if Terragrunt Plan failed.
+      - name: Summarize plan (structural projection)
+        if: success() && steps.check.outputs.skip != 'true'
+        run: terragrunt show -json plan.tfplan | tf-summarize -md > summary.md
+
+      - name: Post plan summary on PR
+        if: success() && steps.check.outputs.skip != 'true' && github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: tf-plan-summary
+          path: summary.md
 
   gate:
     name: Merge Gate
