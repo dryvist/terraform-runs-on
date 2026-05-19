@@ -9,7 +9,10 @@ resource "aws_budgets_budget" "runs_on" {
     name = "Service"
     values = [
       "Amazon Elastic Compute Cloud - Compute",
-      "AWS App Runner",
+      "Amazon Elastic Container Service",
+      "AWS Lambda",
+      "Amazon API Gateway",
+      "AWS WAF",
       "Amazon Simple Storage Service",
       "AmazonCloudWatch",
     ]

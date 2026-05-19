@@ -16,7 +16,7 @@ Deploys RunsOn infrastructure to AWS, providing self-hosted GitHub Actions runne
 GitHub Actions Workflow
         |
         v
-RunsOn App Runner (orchestrator, ~$3/month)
+RunsOn v3 control plane (API Gateway + Lambda + ECS/Fargate, ~$3-5/month)
         |
         v
 EC2 Spot Instances (runners, ~$0.03/hr)
@@ -34,12 +34,15 @@ Cribl.Cloud Free (observability, $0/month)
 
 | Component | Monthly |
 | --------- | ------- |
-| App Runner | ~$3 |
+| Control plane (ECS/Fargate + Lambda + API Gateway) | ~$3-5 |
 | EC2 spot | ~$1-4 |
 | CloudWatch (30d) | ~$0.50 |
-| **Total** | **~$5-8** |
+| WAFv2 (when `enable_waf = true`, default) | ~$8 |
+| **Total** | **~$13-18** |
 
-Budget alarm at $10/month with alerts at 50%, 80%, 100%.
+Budget alarm defaults to $20/month with alerts at 50%, 80%, 100%. Set
+`enable_waf = false` to drop ~$8/month from the bill and `monthly_budget_usd`
+back to ~$10 if you want the previous spend envelope.
 
 ## Usage
 
@@ -93,6 +96,20 @@ direnv allow
 aws-vault exec tf-runs-on -- doppler run -- terragrunt init
 aws-vault exec tf-runs-on -- doppler run -- terragrunt apply
 ```
+
+### Post-setup hardening
+
+Once the initial apply completes and the GitHub App is registered through the
+ingress URL, set `enable_admin_routes = false` (in `terraform.tfvars` or via
+the matching Doppler/TF_VAR override) and re-apply. This closes the public
+`/admin` and `/setup` routes; the runners and webhook path keep working. The
+managed WAF (`enable_waf`) is already attached by default.
+
+### Optional: Bedrock model access from CI
+
+Set `enable_bedrock = true` to grant the runner EC2 instance profile permission
+to call Amazon Bedrock. The model itself still has to be enabled in the AWS
+account separately before a workflow can invoke it.
 
 ## Development
 
