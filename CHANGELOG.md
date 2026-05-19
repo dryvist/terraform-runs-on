@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.4...v0.4.0) (2026-05-19)
+
+
+### Features
+
+* **iac:** WAF, admin gating, Bedrock + v3 migration cleanup ([#64](https://github.com/JacobPEvans/terraform-runs-on/issues/64)) ([687512b](https://github.com/JacobPEvans/terraform-runs-on/commit/687512bf426badaf9ff8dcf8f0a93c84eb8b7c6a))
+
 ## [0.3.4](https://github.com/JacobPEvans/terraform-runs-on/compare/v0.3.3...v0.3.4) (2026-05-15)
 
 
