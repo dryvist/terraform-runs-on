@@ -134,9 +134,10 @@ jobs:
 
   osv-scan:
     name: OSV Scan
-    needs: changes
-    if: always()
-    uses: JacobPEvans/.github/.github/workflows/_osv-scan.yml@main
+    # OSV doesn't consume `needs.changes.outputs.*`, so no `needs:` is needed —
+    # this lets the scan run in parallel with validate/plan.
+    # SHA pin → JacobPEvans/.github main as of 2026-05-20; bump intentionally.
+    uses: JacobPEvans/.github/.github/workflows/_osv-scan.yml@a76cf8faec4ea24036c9042bf52d18b573f172ae
     with:
       runner_label: ubuntu-latest
 
