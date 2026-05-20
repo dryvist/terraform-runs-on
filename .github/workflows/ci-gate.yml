@@ -132,9 +132,18 @@ jobs:
           header: tf-plan-summary
           path: summary.md
 
+  osv-scan:
+    name: OSV Scan
+    # OSV doesn't consume `needs.changes.outputs.*`, so no `needs:` is needed —
+    # this lets the scan run in parallel with validate/plan.
+    # SHA pin → JacobPEvans/.github main as of 2026-05-20; bump intentionally.
+    uses: JacobPEvans/.github/.github/workflows/_osv-scan.yml@a76cf8faec4ea24036c9042bf52d18b573f172ae
+    with:
+      runner_label: ubuntu-latest
+
   gate:
     name: Merge Gate
-    needs: [changes, validate, plan]
+    needs: [changes, validate, plan, osv-scan]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
