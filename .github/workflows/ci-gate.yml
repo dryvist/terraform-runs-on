@@ -132,9 +132,17 @@ jobs:
           header: tf-plan-summary
           path: summary.md
 
+  osv-scan:
+    name: OSV Scan
+    needs: changes
+    if: always()
+    uses: JacobPEvans/.github/.github/workflows/_osv-scan.yml@main
+    with:
+      runner_label: ubuntu-latest
+
   gate:
     name: Merge Gate
-    needs: [changes, validate, plan]
+    needs: [changes, validate, plan, osv-scan]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
