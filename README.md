@@ -121,7 +121,7 @@ aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply chan
 
 ## CI/CD
 
-- **PR**: Automatic `terraform validate` + `terragrunt plan` posted as a
+- **PR**: Automatic `tofu validate` + `terragrunt plan` posted as a
   redacted structural summary (resource addresses + change actions only,
   via [`tf-summarize`](https://github.com/dineshba/tf-summarize)).
   Resolved attribute values are never rendered. See

@@ -9,7 +9,7 @@ internal layout.
 
 ## What ships in PR comments
 
-The `Terraform Plan` job in `.github/workflows/ci-gate.yml` posts a
+The `OpenTofu Plan` job in `.github/workflows/ci-gate.yml` posts a
 single sticky comment per PR using
 [`dineshba/tf-summarize`](https://github.com/dineshba/tf-summarize)
 against the JSON plan representation. The comment contains:

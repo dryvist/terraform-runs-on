@@ -20,15 +20,19 @@ permissions:
 
 jobs:
   apply:
-    name: Terraform Apply
+    name: OpenTofu Apply
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production
     env:
       TERRAGRUNT_LOG_DISABLE: "true"
+      # Force terragrunt to invoke `tofu` instead of `terraform`. Lockfile
+      # entries use `registry.opentofu.org/...`; without this terragrunt
+      # picks up an implicit `terraform` on PATH and rewrites the lockfile.
+      TERRAGRUNT_TFPATH: tofu
     steps:
       - uses: actions/checkout@v6
-      - uses: hashicorp/setup-terraform@v4
+      - uses: opentofu/setup-opentofu@v2
       - name: Install terragrunt via aqua
         uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
         with:

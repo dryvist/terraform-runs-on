@@ -1,3 +1,9 @@
+# OpenTofu (tofu) is the canonical IaC binary for this repo. The
+# `terraform_*` hooks from antonbabenko/pre-commit-terraform honour
+# PCT_TFPATH=tofu to dispatch to `tofu` instead of `terraform`. The Nix
+# dev shell ships both binaries; the .envrc sets PCT_TFPATH so the
+# OpenTofu lockfile format (registry.opentofu.org/...) stays canonical
+# whether checks run locally or in CI.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
