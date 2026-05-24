@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
       - name: Install terragrunt via aqua
-        uses: aquaproj/aqua-installer@11dd79b4e498d471a9385aa9fb7f62bb5f52a73c # v4.0.4
+        uses: aquaproj/aqua-installer@v4.0.4
         with:
           aqua_version: v2.57.1
       - name: Fetch secrets from Doppler
