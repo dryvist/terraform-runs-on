@@ -28,7 +28,7 @@ data "aws_iam_policy_document" "github_actions_trust" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = ["repo:JacobPEvans/terraform-runs-on:*"]
+      values   = ["repo:${var.github_organization}/terraform-runs-on:*"]
     }
   }
 }
