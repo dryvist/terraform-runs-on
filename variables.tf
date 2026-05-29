@@ -1,7 +1,7 @@
 variable "github_organization" {
   description = "GitHub organization or username"
   type        = string
-  default     = "JacobPEvans"
+  default     = "dryvist"
 }
 
 variable "license_key" {
