@@ -192,6 +192,32 @@ data "aws_iam_policy_document" "github_actions_permissions" {
     resources = ["arn:aws:resource-groups:*:${data.aws_caller_identity.current.account_id}:group/runs-on*"]
   }
 
+  # WAFv2 — v3 ingress hardening (enable_waf=true) creates the runs-on-* Web ACL
+  # and allowed-ips IP sets and associates the ACL with the API Gateway stage.
+  # CRUD/associate/tag are scoped to runs-on-* ipset + webacl ARNs.
+  statement {
+    effect  = "Allow"
+    actions = ["wafv2:*"]
+    resources = [
+      "arn:aws:wafv2:*:${data.aws_caller_identity.current.account_id}:regional/ipset/runs-on-*/*",
+      "arn:aws:wafv2:*:${data.aws_caller_identity.current.account_id}:regional/webacl/runs-on-*/*",
+    ]
+  }
+  # WAFv2 list/for-resource lookups have no resource-level scoping per the AWS
+  # service-authorization reference, so they require Resource: *. Same pattern as
+  # the ECS and SSM List* statements above.
+  statement {
+    effect = "Allow"
+    actions = [
+      "wafv2:ListIPSets",
+      "wafv2:ListWebACLs",
+      "wafv2:GetWebACLForResource",
+      "wafv2:ListResourcesForWebACL",
+      "wafv2:ListTagsForResource",
+    ]
+    resources = ["*"]
+  }
+
   # IAM OIDC provider — managed directly by terraform (not via CloudFormation),
   # so the role needs full CRUD on the specific provider ARN. The wider iam:*
   # statement above is scoped to runs-on* resources and does NOT cover the
