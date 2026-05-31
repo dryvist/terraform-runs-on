@@ -5,10 +5,10 @@ on:
   push:
     branches: [main]
     paths:
-      - '**.tf'
-      - '**.tfvars'
-      - 'terragrunt.hcl'
-      - '.terraform.lock.hcl'
+      - "**.tf"
+      - "**.tfvars"
+      - "terragrunt.hcl"
+      - ".terraform.lock.hcl"
 
 concurrency:
   group: deploy-production
