@@ -15,7 +15,7 @@ single sticky comment per PR using
 against the JSON plan representation. The comment contains:
 
 - The count of resources being added, changed, replaced, or destroyed.
-- The terraform *addresses* of those resources (e.g.
+- The terraform _addresses_ of those resources (e.g.
   `module.runs_on.aws_apigatewayv2_api.this[0]`). These are the
   block labels in the committed `.tf` files; they are public by
   construction.

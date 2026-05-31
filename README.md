@@ -32,13 +32,13 @@ Cribl.Cloud Free (observability, $0/month)
 
 ## Cost
 
-| Component | Monthly |
-| --------- | ------- |
-| Control plane (ECS/Fargate + Lambda + API Gateway) | ~$3-5 |
-| EC2 spot | ~$1-4 |
-| CloudWatch (30d) | ~$0.50 |
-| WAFv2 (when `enable_waf = true`, default) | ~$8 |
-| **Total** | **~$13-18** |
+| Component                                          | Monthly     |
+| -------------------------------------------------- | ----------- |
+| Control plane (ECS/Fargate + Lambda + API Gateway) | ~$3-5       |
+| EC2 spot                                           | ~$1-4       |
+| CloudWatch (30d)                                   | ~$0.50      |
+| WAFv2 (when `enable_waf = true`, default)          | ~$8         |
+| **Total**                                          | **~$13-18** |
 
 Budget alarm defaults to $20/month with alerts at 50%, 80%, 100%. Set
 `enable_waf = false` to drop ~$8/month from the bill and `monthly_budget_usd`
