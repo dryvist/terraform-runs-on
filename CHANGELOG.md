@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.2.0](https://github.com/dryvist/terraform-runs-on/compare/v3.1.0...v3.2.0) (2026-06-01)
+
+
+### Features
+
+* adopt nix-devenv terraform pre-commit profile ([#80](https://github.com/dryvist/terraform-runs-on/issues/80)) ([670831d](https://github.com/dryvist/terraform-runs-on/commit/670831d2b5f8bf1f7fc1cd3e4c11ff2c5e835206))
+
+
+### Bug Fixes
+
+* **ci:** repoint release-please caller to org-native reusable workflow ([#82](https://github.com/dryvist/terraform-runs-on/issues/82)) ([1825730](https://github.com/dryvist/terraform-runs-on/commit/1825730a37e66e0a7d9b56a636306dc35f23c645))
+* **iac:** grant WAFv2 IAM permissions to the CI deploy role ([#79](https://github.com/dryvist/terraform-runs-on/issues/79)) ([9569b6a](https://github.com/dryvist/terraform-runs-on/commit/9569b6aae3e099cb342a9ea67326e9230aafbfe3))
+* **iac:** retarget CI OIDC trust, RunsOn org, and reusable workflows after dryvist migration ([#78](https://github.com/dryvist/terraform-runs-on/issues/78)) ([1bc1a83](https://github.com/dryvist/terraform-runs-on/commit/1bc1a83a061e66b38598013144725921670abd6c))
+
 ## [3.1.0](https://github.com/JacobPEvans/terraform-runs-on/compare/v3.0.0...v3.1.0) (2026-05-19)
 
 
