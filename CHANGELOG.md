@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/dryvist/terraform-runs-on/compare/v3.2.0...v3.2.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* **ci:** repoint osv-scan to dryvist/.github hub ([#85](https://github.com/dryvist/terraform-runs-on/issues/85)) ([785997e](https://github.com/dryvist/terraform-runs-on/commit/785997ea20efc4966cd85d672dded98be939d424))
+
 ## [3.2.0](https://github.com/dryvist/terraform-runs-on/compare/v3.1.0...v3.2.0) (2026-06-01)
 
 
