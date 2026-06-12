@@ -141,12 +141,10 @@ jobs:
     name: OSV Scan
     # OSV doesn't consume `needs.changes.outputs.*`, so no `needs:` is needed —
     # this lets the scan run in parallel with validate/plan.
-    # SHA pin → JacobPEvans-personal/.github main as of 2026-05-20; bump intentionally.
-    # Owner is JacobPEvans-personal (not dryvist): the repo moved to the dryvist
-    # org but the reusable workflows live in JacobPEvans-personal/.github, and
-    # Actions does not follow the JacobPEvans→JacobPEvans-personal rename
-    # redirect at workflow-startup (it caused a zero-job startup failure).
-    uses: JacobPEvans-personal/.github/.github/workflows/_osv-scan.yml@a76cf8faec4ea24036c9042bf52d18b573f172ae
+    # Tracks dryvist/.github main — the canonical home for shared reusable
+    # workflows. The previous SHA pin pointed at JacobPEvans-personal/.github
+    # and does not exist in the dryvist hub, so the ref moved to @main.
+    uses: dryvist/.github/.github/workflows/_osv-scan.yml@main
     with:
       runner_label: ubuntu-latest
 

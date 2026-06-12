@@ -1,3 +1,9 @@
+# Canonical source: dryvist/.github/configs/.markdownlint-cli2.yaml
+# (the org-wide markdownlint canon).
+#
+# Deliberate divergences from canon:
+#   - MD013 `tables: false` (canon sets tables: true) and no `strict: true`.
+#   - MD024 `siblings_only: true` (canon keeps MD024 strict-by-default).
 default: true
 
 MD013:
