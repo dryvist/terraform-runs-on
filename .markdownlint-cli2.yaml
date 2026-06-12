@@ -1,3 +1,11 @@
+# Canonical source: dryvist/.github/configs/.markdownlint-cli2.yaml
+# (the org-wide markdownlint canon).
+#
+# Deliberate divergences from canon:
+#   - Extra ignore: .direnv/** (local direnv cache, not present in canon).
+#   - Rule config lives in the sibling .markdownlint.yml (markdownlint-cli2
+#     picks it up automatically) rather than under `config:` here; see that
+#     file's header for the rule-level divergences.
 ignores:
   - "CHANGELOG.md"
   - ".direnv/**"
