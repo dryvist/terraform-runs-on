@@ -1,5 +1,6 @@
 required_sections:
   - Installation
+  - Usage
 optional_sections:
   - Contributing
   - License

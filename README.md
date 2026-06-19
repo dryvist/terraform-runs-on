@@ -62,13 +62,14 @@ The `${{ github.run_id }}` segment is required so RunsOn can correlate the
 documentation](https://runs-on.com/configuration/job-labels/) for runner sizes
 and other options.
 
-## Migrating other repos to RunsOn
+## Onboarding a workflow
 
-See [`docs/migration-guide.md`](docs/migration-guide.md) for the canonical
-per-repo migration playbook: prerequisites, the runner label catalog used
-across this org, which workflows make sense to migrate (and which don't),
-rollout order, and how to verify a migrated workflow landed on RunsOn
-instead of GitHub-hosted compute.
+A workflow opts in to these runners by referencing the v3 RunsOn label
+(`runs-on=${{ github.run_id }}/runner=...`) and installing the RunsOn GitHub
+App on its repository. See [`docs/migration-guide.md`](docs/migration-guide.md)
+for the full playbook: prerequisites, the runner label catalog, which workloads
+suit self-hosted compute, rollout order, and how to verify a job landed on
+RunsOn instead of GitHub-hosted compute.
 
 ## Installation
 
@@ -132,3 +133,7 @@ aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply chan
 ## Inputs & Outputs
 
 Variable descriptions and defaults live in `variables.tf`; outputs in `outputs.tf`.
+
+---
+
+> Part of a [larger ecosystem of ~40 repos](https://docs.jacobpevans.com) — see how it all fits together.
