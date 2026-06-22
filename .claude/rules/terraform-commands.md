@@ -39,7 +39,7 @@ Check for inherited credentials: if `AWS_VAULT` env var is set, skip the aws-vau
 
 ## Doppler Setup
 
-Doppler is configured at the `~/git/` scope (`iac-conf-mgmt/prd`), inherited by all repos.
+Doppler is configured at the `~/git/` scope (your Doppler config), inherited by all repos.
 No per-repo `doppler setup` needed.
 
 The `RUNSON_LICENSE_KEY` env var is mapped to `license_key` via the `inputs` block in `terragrunt.hcl`.

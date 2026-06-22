@@ -16,7 +16,7 @@ variable "email" {
 
   validation {
     condition     = length(trimspace(var.email)) > 0
-    error_message = "email is required. Set RUNSON_ALERT_EMAIL in Doppler (iac-conf-mgmt/prd) to a real inbox."
+    error_message = "email is required. Set RUNSON_ALERT_EMAIL in Doppler to a real inbox."
   }
 
   validation {

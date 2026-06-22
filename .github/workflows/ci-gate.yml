@@ -69,10 +69,10 @@ jobs:
       - name: Check Doppler Configuration
         id: check
         env:
-          DOPPLER_TOKEN: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
+          DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         run: |
           if [ -z "$DOPPLER_TOKEN" ]; then
-            echo "::warning::GH_ACTION_DOPPLER_IAC_CONF_MGMT secret not configured — skipping plan (expected during initial bootstrap)"
+            echo "::warning::DOPPLER_TOKEN secret not configured — skipping plan (expected during initial bootstrap)"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v6
@@ -89,9 +89,7 @@ jobs:
         id: doppler
         uses: dopplerhq/secrets-fetch-action@451892f16195f9ac360e1a5bcbf0b5fd0e957534 # v2.0.0
         with:
-          doppler-token: ${{ secrets.GH_ACTION_DOPPLER_IAC_CONF_MGMT }}
-          doppler-project: iac-conf-mgmt
-          doppler-config: prd
+          doppler-token: ${{ secrets.DOPPLER_TOKEN }}
       - name: Configure AWS Credentials
         if: steps.check.outputs.skip != 'true'
         id: creds
