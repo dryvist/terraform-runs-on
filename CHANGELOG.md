@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/dryvist/terraform-runs-on/compare/v3.2.1...v3.2.2) (2026-06-22)
+
+
+### Bug Fixes
+
+* use generic DOPPLER_TOKEN secret name in CI/docs ([#89](https://github.com/dryvist/terraform-runs-on/issues/89)) ([5c8e6d1](https://github.com/dryvist/terraform-runs-on/commit/5c8e6d1c679d0d7a0f9996502a48d7891e150d8e))
+
 ## [3.2.1](https://github.com/dryvist/terraform-runs-on/compare/v3.2.0...v3.2.1) (2026-06-12)
 
 
