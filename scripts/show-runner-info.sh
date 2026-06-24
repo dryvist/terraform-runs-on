@@ -17,4 +17,4 @@ echo "=== disk ==="
 df -h /
 echo
 echo "=== env (filtered) ==="
-env | grep -E '^(RUNNER_|GITHUB_|CI|HOSTNAME)=' | sort
+env | grep -E '^(RUNNER_|GITHUB_|CI|HOSTNAME)=' | sort || true
