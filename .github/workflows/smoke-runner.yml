@@ -22,24 +22,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Show runner info
-        run: |
-          echo "=== uname ==="
-          uname -a
-          echo
-          echo "=== arch ==="
-          uname -m
-          echo
-          echo "=== cpus ==="
-          nproc
-          echo
-          echo "=== memory ==="
-          free -h
-          echo
-          echo "=== disk ==="
-          df -h /
-          echo
-          echo "=== env (filtered) ==="
-          env | grep -E '^(RUNNER_|GITHUB_|CI|HOSTNAME)=' | sort
+        run: bash scripts/show-runner-info.sh
 
       - name: Ping healthchecks.io
         # Conditional — only ping if the ping key is configured at the repo
