@@ -143,6 +143,10 @@ jobs:
     # workflows. The previous SHA pin pointed at JacobPEvans-personal/.github
     # and does not exist in the dryvist hub, so the ref moved to @main.
     uses: dryvist/.github/.github/workflows/_osv-scan.yml@main
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
     with:
       runner_label: ubuntu-latest
 
