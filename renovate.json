@@ -1,10 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "local>dryvist/.github"],
-  "packageRules": [
-    {
-      "matchManagers": ["terraform", "terragrunt"],
-      "groupName": "terraform dependencies"
-    }
-  ]
+  "extends": ["local>dryvist/.github"]
 }
