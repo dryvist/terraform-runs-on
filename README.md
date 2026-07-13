@@ -77,7 +77,7 @@ RunsOn instead of GitHub-hosted compute.
 
 - [Nix](https://nixos.org/download) with flakes enabled
 - [direnv](https://direnv.net/)
-- [aws-vault](https://github.com/99designs/aws-vault) with a `tf-runs-on` profile
+- Access to the homelab Terrakube control plane
 - A [RunsOn](https://runs-on.com) license key
 
 ### Setup
@@ -93,16 +93,17 @@ git worktree add main main
 cd main
 direnv allow
 
-# Bootstrap infrastructure
-aws-vault exec tf-runs-on -- doppler run -- terragrunt init
-aws-vault exec tf-runs-on -- doppler run -- terragrunt apply
+# Authenticate to Terrakube, load the tofu-runs-on TF_CLOUD_* coordinates,
+# then start the remote run.
+tofu init
+tofu apply
 ```
 
 ### Post-setup hardening
 
-Once the initial apply completes and the GitHub App is registered through the
+Once the initial Terrakube apply completes and the GitHub App is registered through the
 ingress URL, set `enable_admin_routes = false` (in `terraform.tfvars` or via
-the matching Doppler/TF_VAR override) and re-apply. This closes the public
+the matching OpenBao-backed workspace variable) and re-apply. This closes the public
 `/admin` and `/setup` routes; the runners and webhook path keep working. The
 managed WAF (`enable_waf`) is already attached by default.
 
@@ -115,19 +116,17 @@ account separately before a workflow can invoke it.
 ## Development
 
 ```bash
-direnv allow                                                        # Activate Nix shell
-aws-vault exec tf-runs-on -- doppler run -- terragrunt plan         # Preview changes
-aws-vault exec tf-runs-on -- doppler run -- terragrunt apply        # Apply changes
+direnv allow                  # Activate Nix shell
+tofu init -backend=false      # Initialize for local validation
+tofu validate                # Validate without remote credentials
 ```
 
 ## CI/CD
 
-- **PR**: Automatic `tofu validate` + `terragrunt plan` posted as a
-  redacted structural summary (resource addresses + change actions only,
-  via [`tf-summarize`](https://github.com/dineshba/tf-summarize)).
-  Resolved attribute values are never rendered. See
+- **PR**: Automatic backend-free OpenTofu format and validation checks. Plans
+  run privately in the `tofu-runs-on` Terrakube workspace; see
   [`docs/ci-plan-output-policy.md`](docs/ci-plan-output-policy.md).
-- **Merge to main**: Automatic `terragrunt apply` via OIDC (requires `production` environment approval)
+- **Apply**: Terrakube remote run with OpenBao-managed workspace credentials
 - **Releases**: Automated via Release Please
 
 ## Inputs & Outputs

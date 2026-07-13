@@ -13,10 +13,10 @@ compute with no queue wait.
 A repository can opt in to RunsOn runners only after all four are true:
 
 1. The RunsOn CloudFormation stack is applied from the `main/` directory
-   (`terragrunt apply` completes and the ingress URL responds).
+   (the `tofu-runs-on` Terrakube apply completes and the ingress URL responds).
 2. The RunsOn GitHub App is installed on the target repository. The app
    installation page is reached from the ingress URL printed by
-   `terragrunt output`. The app must list the target repo in its allowlist —
+   `tofu output`. The app must list the target repo in its allowlist —
    either by selecting "All repositories" at install time, or by adding the
    repo individually under the App settings page.
 3. Migrated workflows reference the v3 RunsOn label format:

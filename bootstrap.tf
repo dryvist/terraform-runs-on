@@ -1,9 +1,9 @@
 # Bootstrap resources for a fresh AWS account.
 #
 # These are one-time, account-wide AWS-managed singletons. They are documented
-# here so a clean account can reach a working state with a single `terragrunt
-# apply` — no manual console clicks. Existing accounts have these imported into
-# state via `terragrunt import` and `prevent_destroy` keeps them safe from
+# here so a clean account can reach a working state with a single remote
+# Terrakube apply — no manual console clicks. Existing accounts have these
+# imported into state via `tofu import` and `prevent_destroy` keeps them safe from
 # accidental teardown.
 
 # AWS service-linked role for ECS (Fargate control plane).
@@ -14,7 +14,7 @@
 # `iam:CreateServiceLinkedRole` on `ecs.amazonaws.com` creates an ECS cluster.
 #
 # Import (existing account):
-#   terragrunt import aws_iam_service_linked_role.ecs \
+#   tofu import aws_iam_service_linked_role.ecs \
 #     arn:aws:iam::<account>:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS
 resource "aws_iam_service_linked_role" "ecs" {
   aws_service_name = "ecs.amazonaws.com"
