@@ -8,8 +8,12 @@ terraform {
     }
   }
 
-  # Remote state, locking, and execution are provided by the homelab Terrakube
-  # control plane. Runtime TF_CLOUD_* coordinates select the tofu-runs-on
-  # workspace without publishing internal endpoints in this repository.
-  cloud {}
+  cloud {
+    hostname     = "terrakube-api.jacobpevans.com"
+    organization = "dryvist"
+
+    workspaces {
+      name = "tofu-runs-on"
+    }
+  }
 }
