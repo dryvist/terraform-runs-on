@@ -11,12 +11,12 @@ variable "license_key" {
 }
 
 variable "email" {
-  description = "Email for SNS alert subscription (cost reports, error notifications). Must be a real inbox that can receive AWS SNS confirmation messages — GitHub noreply addresses silently drop mail and the subscription will never activate. Sourced from RUNSON_ALERT_EMAIL in Doppler."
+  description = "Email for SNS alert subscription (cost reports, error notifications). Must be a real inbox that can receive AWS SNS confirmation messages — GitHub noreply addresses silently drop mail and the subscription will never activate. Supplied to the Terrakube workspace from OpenBao."
   type        = string
 
   validation {
     condition     = length(trimspace(var.email)) > 0
-    error_message = "email is required. Set RUNSON_ALERT_EMAIL in Doppler to a real inbox."
+    error_message = "email is required. Set the OpenBao-backed Terrakube workspace variable to a real inbox."
   }
 
   validation {
@@ -28,7 +28,7 @@ variable "email" {
 }
 
 variable "alert_slack_webhook_url" {
-  description = "Slack incoming-webhook URL for runs-on alerts (optional; empty disables Slack). Sourced from RUNSON_ALERT_SLACK_WEBHOOK_URL in Doppler. Both email and Slack can be enabled simultaneously."
+  description = "Slack incoming-webhook URL for runs-on alerts (optional; empty disables Slack). Supplied to the Terrakube workspace from OpenBao. Both email and Slack can be enabled simultaneously."
   type        = string
   default     = ""
   sensitive   = true

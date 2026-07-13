@@ -2,7 +2,8 @@ module "runs_on" {
   source  = "runs-on/runs-on/aws//modules/flex"
   version = ">= 3.0.8, < 4.0.0"
 
-  # Required. license_key and OIDC role ARN are fetched at runtime from Doppler (see CLAUDE.md).
+  # Required. Runtime credentials and license data are supplied to the
+  # Terrakube workspace from OpenBao (see CLAUDE.md).
   github_organization = var.github_organization
   license_key         = var.license_key
   email               = var.email

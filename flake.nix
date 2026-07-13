@@ -3,7 +3,7 @@
 # Replaces the previous Pattern-B `.envrc` remote-shell setup with a
 # local flake that:
 #   1. Inherits the terraform dev shell from nix-devenv (terraform,
-#      terragrunt, opentofu, tflint, tfsec, trivy, sops, age, pre-commit,
+#      opentofu, tflint, tfsec, trivy, sops, age, pre-commit,
 #      jq, yq, aws-vault — see nix-devenv/shells/terraform/default.nix).
 #   2. Imports nix-devenv.flakeModules.terraform, which wires up
 #      git-hooks.nix + treefmt-nix + the org-wide pre-commit hooks.

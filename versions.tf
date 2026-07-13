@@ -7,4 +7,9 @@ terraform {
       version = "~> 6.0"
     }
   }
+
+  # Remote state, locking, and execution are provided by the homelab Terrakube
+  # control plane. Runtime TF_CLOUD_* coordinates select the tofu-runs-on
+  # workspace without publishing internal endpoints in this repository.
+  cloud {}
 }
