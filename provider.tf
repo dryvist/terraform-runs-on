@@ -1,4 +1,6 @@
-provider "vault" {}
+provider "vault" {
+  skip_child_token = true
+}
 
 ephemeral "vault_aws_access_credentials" "this" {
   mount  = "aws"
