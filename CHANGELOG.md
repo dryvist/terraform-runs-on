@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.3](https://github.com/dryvist/tofu-runs-on/compare/v3.2.2...v3.2.3) (2026-07-14)
+
+
+### Bug Fixes
+
+* **vault:** set skip_child_token to true on vault provider ([#103](https://github.com/dryvist/tofu-runs-on/issues/103)) ([1cb82d2](https://github.com/dryvist/tofu-runs-on/commit/1cb82d2b97875e649f5dcae1b618abdd72d0d9ab))
+
 ## [3.2.2](https://github.com/dryvist/terraform-runs-on/compare/v3.2.1...v3.2.2) (2026-06-22)
 
 
